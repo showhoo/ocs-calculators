@@ -24,22 +24,65 @@ export interface WireParamEntry {
   readonly ampacityIndoor150A: number;
   /** 150℃ 持续载流量，室外口径，A */
   readonly ampacityOutdoor150A: number;
+  /** 口径说明：本行实际对应标准中的哪一行 */
+  readonly note: string;
 }
 
 /**
  * 接触线参数表，来源 TB/T 2809-2017。
  *
- * ⚠️ 载流量为 150℃ 持续值（室内/室外双口径，标准表5）。
- * 站点在线计算器输出显示 43/56 A，与下表 430/560 A 相差 10 倍，
- * 疑为站点显示层笔误；本库按标准表值实现。
+ * 载流量为 150℃ 持续值（室内/室外双口径，标准表5）。
+ *
+ * 已与站点 `/calculator/assets/calc-core.js` 中的 COPPER_TABLE 逐项比对，
+ * 6 个型号 × 4 项参数完全一致。
+ *
+ * ⚠️ 注意型号口径：CTHM / CTHA / CTHS 是站点计算器的型号代码，与标准中的
+ * CTMH / CTA / CTS 并非同名对应。`note` 字段说明各行实际取自标准的哪一行，
+ * 交叉引用 TB/T 2809-2017 时请以 note 为准。
  */
 export const TB2809_WIRE_PARAMS: Record<CopperWireModel, WireParamEntry> = {
-  'CTHM-120': { unitWeightKgPerKm: 1082, r20OhmPerKm: 0.2113, ampacityIndoor150A: 430, ampacityOutdoor150A: 560 },
-  'CTHM-150': { unitWeightKgPerKm: 1350, r20OhmPerKm: 0.169, ampacityIndoor150A: 500, ampacityOutdoor150A: 650 },
-  'CTHA-120': { unitWeightKgPerKm: 1070, r20OhmPerKm: 0.1481, ampacityIndoor150A: 515, ampacityOutdoor150A: 680 },
-  'CTHA-150': { unitWeightKgPerKm: 1330, r20OhmPerKm: 0.1185, ampacityIndoor150A: 620, ampacityOutdoor150A: 785 },
-  'CTHS-120': { unitWeightKgPerKm: 1080, r20OhmPerKm: 0.1916, ampacityIndoor150A: 515, ampacityOutdoor150A: 680 },
-  'CTHS-150': { unitWeightKgPerKm: 1345, r20OhmPerKm: 0.1533, ampacityIndoor150A: 620, ampacityOutdoor150A: 790 },
+  'CTHM-120': {
+    unitWeightKgPerKm: 1082,
+    r20OhmPerKm: 0.2113,
+    ampacityIndoor150A: 430,
+    ampacityOutdoor150A: 560,
+    note: '取标准 CTMH 行（高强度铜镁合金），ρ 按标准上限 0.02535 计算',
+  },
+  'CTHM-150': {
+    unitWeightKgPerKm: 1350,
+    r20OhmPerKm: 0.169,
+    ampacityIndoor150A: 500,
+    ampacityOutdoor150A: 650,
+    note: '取标准 CTMH 行（高强度铜镁合金）',
+  },
+  'CTHA-120': {
+    unitWeightKgPerKm: 1070,
+    r20OhmPerKm: 0.1481,
+    ampacityIndoor150A: 515,
+    ampacityOutdoor150A: 680,
+    note: '取标准 CTA 行（铜银合金），ρ ≤ 0.01777',
+  },
+  'CTHA-150': {
+    unitWeightKgPerKm: 1330,
+    r20OhmPerKm: 0.1185,
+    ampacityIndoor150A: 620,
+    ampacityOutdoor150A: 785,
+    note: '取标准 CTA 行（铜银合金）',
+  },
+  'CTHS-120': {
+    unitWeightKgPerKm: 1080,
+    r20OhmPerKm: 0.1916,
+    ampacityIndoor150A: 515,
+    ampacityOutdoor150A: 680,
+    note: '取标准 CTS 行（铜锡合金），载流量按 CTS 行取值',
+  },
+  'CTHS-150': {
+    unitWeightKgPerKm: 1345,
+    r20OhmPerKm: 0.1533,
+    ampacityIndoor150A: 620,
+    ampacityOutdoor150A: 790,
+    note: '取标准 CTS 行（铜锡合金），载流量按 CTS 行取值',
+  },
 };
 
 /**

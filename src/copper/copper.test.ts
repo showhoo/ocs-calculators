@@ -12,8 +12,11 @@ import {
  *
  * 参数反推：r_T = r₂₀ → T = 20 ℃；总重量 = 单位重量 → l = 1 km。
  *
- * ⚠️ 站点输出"载流量 150℃（室内/室外）43/56 A"与其内置参数表 430/560 A
- * 相差 10 倍，疑为站点显示层笔误。本库按标准表值 430/560 实现。
+ * 本表已与站点 `/calculator/assets/calc-core.js` 的 COPPER_TABLE 逐项比对一致。
+ *
+ * 历史注记：曾经观察到站点渲染输出"载流量 43/56 A"，一度怀疑是笔误；
+ * 实为浏览器缓存了无版本戳的旧 calc-core.js 所致，服务端数值一直正确。
+ * 站点现以 `?v=<版本戳>` 做缓存击穿。
  */
 const SITE_INPUT = { model: 'CTHM-120' as const, lengthKm: 1, ambientTempDegC: 20 };
 
@@ -26,7 +29,7 @@ describe('copper - 与站点已发布输出回归', () => {
     expect(r.rTOhmPerKm).toBeCloseTo(0.2113, 9);
   });
 
-  it('载流量按标准表值 430/560 A（站点显示 43/56 疑为笔误）', () => {
+  it('载流量 430/560 A，与服务端 COPPER_TABLE 一致', () => {
     const r = wireLookup(SITE_INPUT);
     expect(r.ampacityIndoor150A).toBe(430);
     expect(r.ampacityOutdoor150A).toBe(560);
@@ -41,6 +44,16 @@ describe('copper - 参数表完整性', () => {
       expect(p.unitWeightKgPerKm).toBeGreaterThan(1000);
       expect(p.r20OhmPerKm).toBeGreaterThan(0.1);
       expect(p.ampacityOutdoor150A).toBeGreaterThan(p.ampacityIndoor150A);
+    }
+  });
+
+  it('note 字段标明各行实际取自标准的哪一行', () => {
+    // 站点型号代码与标准型号不同名：CTHM→CTMH、CTHA→CTA、CTHS→CTS
+    expect(TB2809_WIRE_PARAMS['CTHM-120'].note).toContain('CTMH');
+    expect(TB2809_WIRE_PARAMS['CTHA-120'].note).toContain('CTA');
+    expect(TB2809_WIRE_PARAMS['CTHS-150'].note).toContain('CTS');
+    for (const [, p] of Object.entries(TB2809_WIRE_PARAMS)) {
+      expect(p.note.length).toBeGreaterThan(0);
     }
   });
 
