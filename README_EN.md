@@ -46,7 +46,7 @@ const curve = tensionCurve(
   {
     baseTensionKN: 20,
     baseTempDegC: -20,
-    weightPerLengthNPerM: 10.6222,
+    weightPerLengthNPerM: 10.61442,
     spanM: 55,
     elasticModulusGPa: 120,
     crossSectionMM2: 120,
