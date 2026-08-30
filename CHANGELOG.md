@@ -3,7 +3,12 @@
 本文件格式遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 版本号遵循[语义化版本](https://semver.org/lang/zh-CN/)。
 
-## [未发布]
+## [0.1.0] - 2026-08-31
+
+首个公开版本。覆盖思维接触网百科全部 12 个在线计算器。
+
+所有公式与默认参数取自站点 `/calculator/assets/calc-core.js` 源码；
+单元测试的期望值由源码公式独立算出，共 158 个测试。
 
 ### 新增
 
