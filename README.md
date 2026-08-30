@@ -70,7 +70,7 @@ for (const p of curve) {
 | ✅ 已实现 | 张力-温度安装曲线 | `tension` | [/calculator/tension/](https://www.itswe.com/calculator/tension/) |
 | 📋 规划中 | 弓网接触力评价 | `force` | [/calculator/force/](https://www.itswe.com/calculator/force/) |
 | 📋 规划中 | 载流量与热稳定 | `ampacity` | [/calculator/ampacity/](https://www.itswe.com/calculator/ampacity/) |
-| 📋 规划中 | 吊弦长度计算 | `dropper` | [/calculator/dropper/](https://www.itswe.com/calculator/dropper/) |
+| ✅ 已实现 | 吊弦长度计算 | `dropper` | [/calculator/dropper/](https://www.itswe.com/calculator/dropper/) |
 | 📋 规划中 | 风偏移计算 | `wind` | [/calculator/wind/](https://www.itswe.com/calculator/wind/) |
 | 📋 规划中 | 接触线磨耗计算 | `wear` | [/calculator/wear/](https://www.itswe.com/calculator/wear/) |
 | 📋 规划中 | 铜材计算 | `copper` | [/calculator/copper/](https://www.itswe.com/calculator/copper/) |
@@ -80,7 +80,7 @@ for (const p of curve) {
 | 📋 规划中 | 曲线拉出值校核 | `curve-stagger` | [/calculator/curve-stagger/](https://www.itswe.com/calculator/curve-stagger/) |
 | 📋 规划中 | 覆冰荷载校核 | `icing` | [/calculator/icing/](https://www.itswe.com/calculator/icing/) |
 
-`src/tension/` 是其余 11 个模块的参考模板，照它的结构填即可。
+`src/tension/` 与 `src/dropper/` 是其余 10 个模块的参考模板，照它的结构填即可。
 
 ## 单位约定
 

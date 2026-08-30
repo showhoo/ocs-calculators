@@ -76,7 +76,7 @@ This matches <https://www.itswe.com/calculator/tension/> exactly.
 | ✅ Available | Tension-temperature installation curve | `tension` |
 | 📋 Planned | Pantograph-catenary contact force | `force` |
 | 📋 Planned | Ampacity and thermal stability | `ampacity` |
-| 📋 Planned | Dropper length | `dropper` |
+| ✅ Available | Dropper length | `dropper` |
 | 📋 Planned | Wind deflection | `wind` |
 | 📋 Planned | Contact wire wear | `wear` |
 | 📋 Planned | Copper weight | `copper` |
