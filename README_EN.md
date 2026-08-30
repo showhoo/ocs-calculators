@@ -2,7 +2,7 @@
 
 **Engineering calculators for railway overhead contact systems (catenary) — open formulas, zero dependencies, embeddable in your own projects.**
 
-🔗 Try online: <https://www.itswe.com/calculator/>
+🔗 Try online: <https://www.itswe.com/Category:tools>
 📖 Companion wiki (Chinese, 504 entries): <https://www.itswe.com>
 
 [简体中文](./README.md) | English

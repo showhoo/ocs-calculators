@@ -2,7 +2,7 @@
 
 **铁路接触网（OCS）工程计算工具 —— 公式公开、零依赖、可直接在你的项目里引用。**
 
-🔗 在线使用：<https://www.itswe.com/calculator/>
+🔗 在线使用：<https://www.itswe.com/Category:tools>
 📖 配套百科：<https://www.itswe.com>（504 条接触网专业词条）
 
 [English](./README_EN.md) | 简体中文
