@@ -78,9 +78,9 @@ This matches <https://www.itswe.com/calculator/tension/> exactly.
 | ✅ Available | Ampacity and thermal stability | `ampacity` |
 | ✅ Available | Dropper length | `dropper` |
 | ✅ Available | Wind deflection clearance | `wind` |
-| 📋 Planned | Contact wire wear | `wear` |
-| 📋 Planned | Copper weight | `copper` |
-| 📋 Planned | Compensation stroke | `stroke` |
+| ✅ Available | Contact wire wear | `wear` |
+| ✅ Available | Copper weight | `copper` |
+| ✅ Available | Compensation stroke | `stroke` |
 | ✅ Available | Wave propagation speed | `wavespeed` |
 | ✅ Available | Voltage drop | `voltage-drop` |
 | ✅ Available | Curve stagger | `curve-stagger` |
