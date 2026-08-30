@@ -11,6 +11,9 @@
 
 export * from './types';
 export * from './data/wire-specs';
+export * from './data/tb2809-ampacity';
 export * from './tension';
 export * from './dropper';
 export * from './wind';
+export * from './force';
+export * from './ampacity';

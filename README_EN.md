@@ -74,8 +74,8 @@ This matches <https://www.itswe.com/calculator/tension/> exactly.
 | Status | Calculator | Module |
 |---|---|---|
 | ✅ Available | Tension-temperature installation curve | `tension` |
-| 📋 Planned | Pantograph-catenary contact force | `force` |
-| 📋 Planned | Ampacity and thermal stability | `ampacity` |
+| ✅ Available | Pantograph-catenary contact force | `force` |
+| ✅ Available | Ampacity and thermal stability | `ampacity` |
 | ✅ Available | Dropper length | `dropper` |
 | ✅ Available | Wind deflection clearance | `wind` |
 | 📋 Planned | Contact wire wear | `wear` |

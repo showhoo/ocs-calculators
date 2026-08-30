@@ -68,8 +68,8 @@ for (const p of curve) {
 | 状态 | 计算器 | 模块 | 在线地址 |
 |---|---|---|---|
 | ✅ 已实现 | 张力-温度安装曲线 | `tension` | [/calculator/tension/](https://www.itswe.com/calculator/tension/) |
-| 📋 规划中 | 弓网接触力评价 | `force` | [/calculator/force/](https://www.itswe.com/calculator/force/) |
-| 📋 规划中 | 载流量与热稳定 | `ampacity` | [/calculator/ampacity/](https://www.itswe.com/calculator/ampacity/) |
+| ✅ 已实现 | 弓网接触力评价 | `force` | [/calculator/force/](https://www.itswe.com/calculator/force/) |
+| ✅ 已实现 | 载流量与热稳定 | `ampacity` | [/calculator/ampacity/](https://www.itswe.com/calculator/ampacity/) |
 | ✅ 已实现 | 吊弦长度计算 | `dropper` | [/calculator/dropper/](https://www.itswe.com/calculator/dropper/) |
 | ✅ 已实现 | 风偏限界校验 | `wind` | [/calculator/wind/](https://www.itswe.com/calculator/wind/) |
 | 📋 规划中 | 接触线磨耗计算 | `wear` | [/calculator/wear/](https://www.itswe.com/calculator/wear/) |
@@ -80,7 +80,9 @@ for (const p of curve) {
 | 📋 规划中 | 曲线拉出值校核 | `curve-stagger` | [/calculator/curve-stagger/](https://www.itswe.com/calculator/curve-stagger/) |
 | 📋 规划中 | 覆冰荷载校核 | `icing` | [/calculator/icing/](https://www.itswe.com/calculator/icing/) |
 
-`src/tension/`、`src/dropper/`、`src/wind/` 是其余 9 个模块的参考模板，照它的结构填即可。
+以上已实现模块均为参考模板，照它的结构填即可。
+
+另附结构化数据 `src/data/tb2809-ampacity.ts`：TB/T 2809-2017 表5 持续载流量参考值（9 种材质 × 120/150 mm² × 4 种工况），可直接当数据包引用。
 
 ## 单位约定
 
