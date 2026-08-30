@@ -12,8 +12,7 @@
 ![license](https://img.shields.io/npm/l/ocs-calculators)
 ![dependencies](https://img.shields.io/badge/dependencies-0-brightgreen)
 
-> 📷 建议在仓库 `docs/screenshot.png` 放一张在线计算器首屏截图。
-> 纯文字 README 的转化率明显低于带截图的。
+![首屏截图](docs/screenshot.png)
 
 ---
 
@@ -72,17 +71,15 @@ for (const p of curve) {
 | ✅ 已实现 | 载流量与热稳定 | `ampacity` | [/calculator/ampacity/](https://www.itswe.com/calculator/ampacity/) |
 | ✅ 已实现 | 吊弦长度计算 | `dropper` | [/calculator/dropper/](https://www.itswe.com/calculator/dropper/) |
 | ✅ 已实现 | 风偏限界校验 | `wind` | [/calculator/wind/](https://www.itswe.com/calculator/wind/) |
-| 📋 规划中 | 接触线磨耗计算 | `wear` | [/calculator/wear/](https://www.itswe.com/calculator/wear/) |
-| 📋 规划中 | 铜材计算 | `copper` | [/calculator/copper/](https://www.itswe.com/calculator/copper/) |
-| 📋 规划中 | 补偿行程计算 | `stroke` | [/calculator/stroke/](https://www.itswe.com/calculator/stroke/) |
+| ✅ 已实现 | 接触线磨耗率 | `wear` | [/calculator/wear/](https://www.itswe.com/calculator/wear/) |
+| ✅ 已实现 | 接触线参数速查 | `copper` | [/calculator/copper/](https://www.itswe.com/calculator/copper/) |
+| ✅ 已实现 | 补偿行程 | `stroke` | [/calculator/stroke/](https://www.itswe.com/calculator/stroke/) |
 | 📋 规划中 | 波速利用率计算 | `wavespeed` | [/calculator/wavespeed/](https://www.itswe.com/calculator/wavespeed/) |
 | 📋 规划中 | 电压降校核 | `voltage-drop` | [/calculator/voltage-drop/](https://www.itswe.com/calculator/voltage-drop/) |
 | 📋 规划中 | 曲线拉出值校核 | `curve-stagger` | [/calculator/curve-stagger/](https://www.itswe.com/calculator/curve-stagger/) |
 | 📋 规划中 | 覆冰荷载校核 | `icing` | [/calculator/icing/](https://www.itswe.com/calculator/icing/) |
 
 以上已实现模块均为参考模板，照它的结构填即可。
-
-另附结构化数据 `src/data/tb2809-ampacity.ts`：TB/T 2809-2017 表5 持续载流量参考值（9 种材质 × 120/150 mm² × 4 种工况），可直接当数据包引用。
 
 ## 单位约定
 
