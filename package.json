@@ -1,0 +1,59 @@
+{
+  "name": "ocs-calculators",
+  "version": "0.1.0",
+  "description": "铁路接触网（OCS）工程计算工具集 —— 张力、弛度、吊弦、风偏移等计算，零依赖纯函数实现 / Railway overhead contact system (OCS) engineering calculators as zero-dependency pure functions",
+  "keywords": [
+    "catenary",
+    "overhead-contact-line",
+    "overhead-contact-system",
+    "ocs",
+    "pantograph",
+    "railway",
+    "railway-electrification",
+    "contact-wire",
+    "engineering-calculator",
+    "接触网",
+    "电气化铁路",
+    "铁路供电"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts --sourcemap --target es2022",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run typecheck && npm run test && npm run build"
+  },
+  "devDependencies": {
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "homepage": "https://www.itswe.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/showhoo/ocs-calculators.git"
+  },
+  "bugs": {
+    "url": "https://github.com/showhoo/ocs-calculators/issues"
+  },
+  "author": "思维接触网百科"
+}

@@ -1,0 +1,48 @@
+name: 新计算器或功能建议
+description: 建议新增一个计算器，或为现有计算器增加能力
+title: '[建议] '
+labels: ['enhancement']
+body:
+  - type: markdown
+    value: |
+      本项目计划覆盖 12 个在线计算器。建议新功能时，请说明它在工程上的实际使用场景。
+
+  - type: input
+    id: name
+    attributes:
+      label: 计算器名称
+      placeholder: 例如：吊弦长度计算
+    validations:
+      required: true
+
+  - type: textarea
+    id: scenario
+    attributes:
+      label: 使用场景
+      description: 什么情况下会用到？谁会用？现在是怎么算的？
+    validations:
+      required: true
+
+  - type: textarea
+    id: formula
+    attributes:
+      label: 计算公式与依据
+      description: 如果已知，请提供公式、参数含义、以及依据的标准号或手册
+    validations:
+      required: false
+
+  - type: textarea
+    id: range
+    attributes:
+      label: 适用范围与已知限制
+      description: 各参数的合理取值范围、公式的近似假设
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: contribute
+    attributes:
+      label: 参与
+      options:
+        - label: 我愿意提交实现这个计算器的 PR
+        - label: 我可以提供测试用的期望值（手算或来自其他权威工具）
