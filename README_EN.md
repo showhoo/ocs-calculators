@@ -77,7 +77,7 @@ This matches <https://www.itswe.com/calculator/tension/> exactly.
 | 📋 Planned | Pantograph-catenary contact force | `force` |
 | 📋 Planned | Ampacity and thermal stability | `ampacity` |
 | ✅ Available | Dropper length | `dropper` |
-| 📋 Planned | Wind deflection | `wind` |
+| ✅ Available | Wind deflection clearance | `wind` |
 | 📋 Planned | Contact wire wear | `wear` |
 | 📋 Planned | Copper weight | `copper` |
 | 📋 Planned | Compensation stroke | `stroke` |

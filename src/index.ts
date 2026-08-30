@@ -13,3 +13,4 @@ export * from './types';
 export * from './data/wire-specs';
 export * from './tension';
 export * from './dropper';
+export * from './wind';
