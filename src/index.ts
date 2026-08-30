@@ -17,3 +17,6 @@ export * from './dropper';
 export * from './wind';
 export * from './force';
 export * from './ampacity';
+export * from './wear';
+export * from './copper';
+export * from './stroke';
