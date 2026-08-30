@@ -36,6 +36,10 @@ export interface WireParamEntry {
  * 已与站点 `/calculator/assets/calc-core.js` 中的 COPPER_TABLE 逐项比对，
  * 6 个型号 × 4 项参数完全一致。
  *
+ * 注：站点曾因显示层 `fmt()` 的尾零剥离正则把载流量渲染成 43/56（应为 430/560），
+ * 已于 R38 之后修复。若再遇渲染值与本表不符，先确认是否为显示层问题：
+ * 本表与服务端数据源始终一致。
+ *
  * ⚠️ 注意型号口径：CTHM / CTHA / CTHS 是站点计算器的型号代码，与标准中的
  * CTMH / CTA / CTS 并非同名对应。`note` 字段说明各行实际取自标准的哪一行，
  * 交叉引用 TB/T 2809-2017 时请以 note 为准。
