@@ -62,7 +62,9 @@ for (const p of curve) {
 
 上面这段输出与 <https://www.itswe.com/calculator/tension/> 在线计算器完全一致，测试用例里做了逐行回归。
 
-## 12 个计算器
+## 12 个计算器（全部实现）
+
+对应 <https://www.itswe.com/Category:tools> 的 12 个在线计算器，全部已实现并逐项回归。
 
 | 状态 | 计算器 | 模块 | 在线地址 |
 |---|---|---|---|
@@ -74,12 +76,13 @@ for (const p of curve) {
 | ✅ 已实现 | 接触线磨耗率 | `wear` | [/calculator/wear/](https://www.itswe.com/calculator/wear/) |
 | ✅ 已实现 | 接触线参数速查 | `copper` | [/calculator/copper/](https://www.itswe.com/calculator/copper/) |
 | ✅ 已实现 | 补偿行程 | `stroke` | [/calculator/stroke/](https://www.itswe.com/calculator/stroke/) |
-| 📋 规划中 | 波速利用率计算 | `wavespeed` | [/calculator/wavespeed/](https://www.itswe.com/calculator/wavespeed/) |
-| 📋 规划中 | 电压降校核 | `voltage-drop` | [/calculator/voltage-drop/](https://www.itswe.com/calculator/voltage-drop/) |
-| 📋 规划中 | 曲线拉出值校核 | `curve-stagger` | [/calculator/curve-stagger/](https://www.itswe.com/calculator/curve-stagger/) |
-| 📋 规划中 | 覆冰荷载校核 | `icing` | [/calculator/icing/](https://www.itswe.com/calculator/icing/) |
+| ✅ 已实现 | 波速利用率 | `wavespeed` | [/calculator/wavespeed/](https://www.itswe.com/calculator/wavespeed/) |
+| ✅ 已实现 | 电压降校核 | `voltage-drop` | [/calculator/voltage-drop/](https://www.itswe.com/calculator/voltage-drop/) |
+| ✅ 已实现 | 曲线拉出值校核 | `curve-stagger` | [/calculator/curve-stagger/](https://www.itswe.com/calculator/curve-stagger/) |
+| ✅ 已实现 | 覆冰荷载校核 | `icing` | [/calculator/icing/](https://www.itswe.com/calculator/icing/) |
 
-以上已实现模块均为参考模板，照它的结构填即可。
+所有公式与默认参数均取自站点 `/calculator/assets/calc-core.js` 源码，
+单元测试的期望值由源码公式独立算出，未从渲染结果反推。
 
 ## 单位约定
 

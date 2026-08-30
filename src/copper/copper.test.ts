@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
+import { TB2809_WIRE_PARAMS, wireLookup } from './index';
+// 电阻温度修正与铜常数已抽到公共模块（copper 与 voltage-drop 共用）
 import {
   COPPER_ALPHA_PER_DEG_C,
   resistanceAtTempOhmPerKm,
-  TB2809_WIRE_PARAMS,
-  wireLookup,
-} from './index';
+} from '../common/resistance';
 
 /**
  * 站点 https://www.itswe.com/calculator/copper/ 已发布的输出（CTHM-120）：

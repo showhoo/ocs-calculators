@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
   equivalentSpanM,
-  iceLoadNPerM,
   sagM,
   solveTensionN,
   stateCoefficientK,
@@ -10,6 +9,8 @@ import {
   type TensionCurveInput,
 } from './index';
 import { deriveLinearMassKgPerM, weightPerLengthNPerM } from '../data/wire-specs';
+// 冰筒模型已抽到公共模块（tension 与 icing 共用），单位为 SI（米）
+import { iceLoadNPerM } from '../common/ice';
 
 /**
  * 相对误差断言。
@@ -124,8 +125,8 @@ describe('tension - 纯公式校验', () => {
     expectClose(
       iceLoadNPerM({
         iceDensityKgPerM3: 900,
-        iceThicknessMM: 10,
-        wireDiameterMM: 12.9,
+        iceThicknessM: 0.01,
+        wireDiameterM: 0.0129,
       }),
       6.3522,
       1e-3,
@@ -171,7 +172,7 @@ describe('tension - 求解器', () => {
     expect(() => equivalentSpanM([])).toThrow(RangeError);
     expect(() => equivalentSpanM([50, -1])).toThrow(RangeError);
     expect(() =>
-      iceLoadNPerM({ iceDensityKgPerM3: 900, iceThicknessMM: 10, wireDiameterMM: 0 }),
+      iceLoadNPerM({ iceDensityKgPerM3: 900, iceThicknessM: 0.01, wireDiameterM: 0 }),
     ).toThrow(RangeError);
   });
 });

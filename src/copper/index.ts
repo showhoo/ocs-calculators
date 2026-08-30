@@ -1,10 +1,8 @@
 export { copperMeta } from './meta';
 
-/** 铜的电阻温度系数，1/℃ */
-export const COPPER_ALPHA_PER_DEG_C = 0.00393;
-
-/** IACS 退火铜 20℃ 标准电阻率，Ω·mm²/m（= 1/58） */
-export const IACS_RESISTIVITY_OHM_MM2_PER_M = 0.017241;
+// 电阻温度修正与铜常数统一放在 src/common/resistance.ts（copper 与 voltage-drop 共用），
+// 由根 index 统一导出，此处仅内部引用，避免重复导出同名符号。
+import { resistanceAtTempOhmPerKm } from '../common/resistance';
 
 /** 站点计算器内置的 6 个型号 */
 export type CopperWireModel =
@@ -89,31 +87,6 @@ export const TB2809_WIRE_PARAMS: Record<CopperWireModel, WireParamEntry> = {
   },
 };
 
-/**
- * 电阻温度修正：r_T = r₂₀·[1 + α·(T − 20)]。
- *
- * @param r20OhmPerKm 20℃ 直流电阻，Ω/km
- * @param tempDegC 目标温度，℃
- * @param alphaPerDegC 电阻温度系数，1/℃。缺省铜 0.00393
- * @returns 该温度下的直流电阻，Ω/km
- */
-export function resistanceAtTempOhmPerKm(
-  r20OhmPerKm: number,
-  tempDegC: number,
-  alphaPerDegC: number = COPPER_ALPHA_PER_DEG_C,
-): number {
-  if (!(r20OhmPerKm > 0)) {
-    throw new RangeError(`20℃ 电阻必须为正数，收到 ${r20OhmPerKm} Ω/km`);
-  }
-  if (!(alphaPerDegC > 0)) {
-    throw new RangeError(`电阻温度系数必须为正数，收到 ${alphaPerDegC} /℃`);
-  }
-  if (tempDegC < -40 || tempDegC > 90) {
-    throw new RangeError(`适用温度为 −40 ~ 90 ℃，收到 ${tempDegC} ℃`);
-  }
-  return r20OhmPerKm * (1 + alphaPerDegC * (tempDegC - 20));
-}
-
 export interface CopperLookupInput {
   readonly model: CopperWireModel;
   /** 长度 l，km */
@@ -144,6 +117,9 @@ export function wireLookup(input: CopperLookupInput): CopperLookupResult {
   }
   if (!(lengthKm > 0)) {
     throw new RangeError(`长度必须为正数，收到 ${lengthKm} km`);
+  }
+  if (ambientTempDegC < -40 || ambientTempDegC > 90) {
+    throw new RangeError(`适用温度为 −40 ~ 90 ℃，收到 ${ambientTempDegC} ℃`);
   }
 
   const rT = resistanceAtTempOhmPerKm(params.r20OhmPerKm, ambientTempDegC);

@@ -1,5 +1,3 @@
-import { G0 } from '../types';
-
 export { tensionMeta } from './meta';
 
 /** 单个温度档的输入参数 */
@@ -79,21 +77,9 @@ export function equivalentSpanM(spansM: readonly number[]): number {
 }
 
 /**
- * 覆冰荷载，均匀冰筒模型：g_ice = ρ_ice · g₀ · π · b · (d + b)
- * @returns 单位长度冰重，N/m
+ * 覆冰荷载（均匀冰筒模型）与 icing 模块共用 `src/common/ice.ts`，
+ * 由根 index 统一导出，此处不再重复定义。
  */
-export function iceLoadNPerM(params: {
-  readonly iceDensityKgPerM3: number;
-  readonly iceThicknessMM: number;
-  readonly wireDiameterMM: number;
-}): number {
-  const bM = params.iceThicknessMM * 1e-3;
-  const dM = params.wireDiameterMM * 1e-3;
-  if (params.iceThicknessMM < 0 || params.wireDiameterMM <= 0) {
-    throw new RangeError('覆冰厚度不能为负，线径必须为正');
-  }
-  return params.iceDensityKgPerM3 * G0 * Math.PI * bM * (dM + bM);
-}
 
 /**
  * 状态方程系数 K = g²l²EA/24，单位 N³。

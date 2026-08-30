@@ -10,6 +10,8 @@
  */
 
 export * from './types';
+export * from './common/resistance';
+export * from './common/ice';
 export * from './data/wire-specs';
 export * from './data/tb2809-ampacity';
 export * from './tension';
@@ -20,3 +22,7 @@ export * from './ampacity';
 export * from './wear';
 export * from './copper';
 export * from './stroke';
+export * from './wavespeed';
+export * from './voltage-drop';
+export * from './curve-stagger';
+export * from './icing';

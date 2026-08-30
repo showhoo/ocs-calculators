@@ -81,10 +81,10 @@ This matches <https://www.itswe.com/calculator/tension/> exactly.
 | 📋 Planned | Contact wire wear | `wear` |
 | 📋 Planned | Copper weight | `copper` |
 | 📋 Planned | Compensation stroke | `stroke` |
-| 📋 Planned | Wave propagation speed | `wavespeed` |
-| 📋 Planned | Voltage drop | `voltage-drop` |
-| 📋 Planned | Curve stagger | `curve-stagger` |
-| 📋 Planned | Ice load | `icing` |
+| ✅ Available | Wave propagation speed | `wavespeed` |
+| ✅ Available | Voltage drop | `voltage-drop` |
+| ✅ Available | Curve stagger | `curve-stagger` |
+| ✅ Available | Ice load | `icing` |
 
 ## Unit conventions
 
