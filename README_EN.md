@@ -133,6 +133,12 @@ src/<module>/
 └── <module>.test.ts  # expected values taken from the online calculator
 ```
 
+## Sponsors
+
+Development and maintenance of this project is supported by:
+
+**[Henan Chuangwei Railway Equipment Co., Ltd.](https://www.chuangwit.com)** (河南创为铁路器材有限公司)
+
 ## License
 
 Code: [MIT](./LICENSE). Companion wiki content: CC BY-SA 4.0.

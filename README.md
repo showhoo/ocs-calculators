@@ -147,6 +147,12 @@ src/<模块名>/
 - [ocs-wiki-content](https://github.com/showhoo/ocs-wiki-content) — 504 条词条快照与结构化数据（规划中）
 - [itswe](https://github.com/showhoo/itswe) — 站点介绍与建站文档（规划中）
 
+## 赞助
+
+本项目的开发与维护感谢以下赞助者的支持：
+
+**[河南创为铁路器材有限公司](https://www.chuangwit.com)**
+
 ## 授权
 
 - **代码**：[MIT](./LICENSE)
