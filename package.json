@@ -29,7 +29,11 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "README_EN.md",
+    "DISCLAIMER.md",
+    "CHANGELOG.md"
   ],
   "sideEffects": false,
   "scripts": {
