@@ -20,9 +20,9 @@ import { iceLoadNPerM } from '../common/ice';
 /**
  * 相对误差断言。
  * 站点输出表的数值经过显示取整（张力 2 位小数 kN、弛度 3 位小数 m），
- * 因此用 1% 相对容差做回归，不做精确相等。
+ * 显示取整最坏相对误差约 0.35%（小弛度行），取 0.5%（2026-08-31 由 1% 收紧）。
  */
-function expectClose(actual: number, expected: number, relTol = 0.01): void {
+function expectClose(actual: number, expected: number, relTol = 0.005): void {
   const rel = Math.abs(actual - expected) / Math.abs(expected);
   expect(
     rel,
