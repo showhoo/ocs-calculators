@@ -1,0 +1,76 @@
+name: Mirror All Repos to Gitee & GitCode
+
+on:
+  schedule:
+    - cron: '0 1 * * *'   # 每天 09:00 北京时间自动全量对齐
+  workflow_dispatch: {}    # 支持手动触发
+
+concurrency:
+  group: mirror-all
+  cancel-in-progress: false
+
+jobs:
+  mirror-all:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Discover and mirror all repos
+        env:
+          GH_PAT: ${{ secrets.MIRROR_PAT }}        # 经典令牌，需 repo 权限（读私有仓库列表）
+          GITEE_TOKEN: ${{ secrets.GITEE_TOKEN }}
+          GITCODE_TOKEN: ${{ secrets.GITCODE_TOKEN }}
+          GITEE_USER: showhoo
+          GITCODE_USER: showhoo
+        run: |
+          set -e
+          echo "=== 发现 GitHub 账号下所有仓库 ==="
+          REPOS=$(curl -s -H "Authorization: Bearer $GH_PAT" \
+            "https://api.github.com/user/repos?per_page=100&sort=full_name&type=owner" \
+            | jq -r '.[] | "\(.name)|\(.private)|\(.description // "")"')
+          echo "$REPOS"
+
+          while IFS='|' read -r name private desc; do
+            [ -z "$name" ] && continue
+            echo ""
+            echo "=== 同步 $name (private=$private) ==="
+
+            if [ "$private" = "true" ]; then VIS="private"; else VIS="public"; fi
+
+            # ---- Gitee: 不存在则建仓 ----
+            GITEE_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+              -H "Authorization: Bearer $GITEE_TOKEN" \
+              "https://gitee.com/api/v5/repos/${GITEE_USER}/${name}")
+            if [ "$GITEE_CODE" = "404" ]; then
+              echo "  Gitee 建仓 $name ..."
+              curl -s -o /dev/null -X POST -H "Authorization: Bearer $GITEE_TOKEN" \
+                "https://gitee.com/api/v5/user/repos" \
+                -d "name=${name}&private=$([[ $VIS == private ]] && echo true || echo false)&description=${desc}"
+            fi
+
+            # ---- GitCode: 不存在则建仓 ----
+            GITCODE_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+              -H "PRIVATE-TOKEN: $GITCODE_TOKEN" \
+              "https://gitcode.com/api/v5/repos/${GITCODE_USER}/${name}")
+            if [ "$GITCODE_CODE" = "404" ]; then
+              echo "  GitCode 建仓 $name ..."
+              curl -s -o /dev/null -X POST -H "PRIVATE-TOKEN: $GITCODE_TOKEN" \
+                -H "Content-Type: application/json" \
+                "https://gitcode.com/api/v5/user/repos" \
+                -d "{\"name\":\"${name}\",\"private\":$([[ $VIS == private ]] && echo true || echo false),\"description\":\"${desc}\"}"
+            fi
+
+            # ---- 镜像推送（裸镜像：分支+标签全量）----
+            git clone --mirror "https://x-access-token:${GH_PAT}@github.com/${GITHUB_REPOSITORY_OWNER}/${name}.git" "mirror_${name}.git"
+            cd "mirror_${name}.git"
+            git remote add gitee "https://${GITEE_USER}:${GITEE_TOKEN}@gitee.com/${GITEE_USER}/${name}.git" || true
+            git remote add gitcode "https://${GITCODE_USER}:${GITCODE_TOKEN}@gitcode.com/${GITCODE_USER}/${name}.git" || true
+            git push gitee --all --force
+            git push gitee --tags --force
+            git push gitcode --all --force
+            git push gitcode --tags --force
+            cd ..
+            rm -rf "mirror_${name}.git"
+            echo "  ✅ $name 同步完成"
+          done <<< "$REPOS"
+
+          echo ""
+          echo "=== 全部仓库镜像完成 ==="
