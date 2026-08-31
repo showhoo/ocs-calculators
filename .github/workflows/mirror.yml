@@ -22,12 +22,12 @@ jobs:
       - name: Push to Gitee
         run: |
           git remote add gitee "https://${{ secrets.GITEE_USERNAME }}:${{ secrets.GITEE_TOKEN }}@gitee.com/${{ secrets.GITEE_USERNAME }}/ocs-calculators.git"
-          git push gitee main --force-with-lease=main
+          git push gitee main --force
           git push gitee --tags
 
       # ---- GitCode ----
       - name: Push to GitCode
         run: |
           git remote add gitcode "https://${{ secrets.GITCODE_USERNAME }}:${{ secrets.GITCODE_TOKEN }}@gitcode.com/${{ secrets.GITCODE_USERNAME }}/ocs-calculators.git"
-          git push gitcode main --force-with-lease=main
+          git push gitcode main --force
           git push gitcode --tags
