@@ -1,0 +1,33 @@
+name: Mirror to Gitee & GitCode
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+concurrency:
+  group: mirror
+  cancel-in-progress: false
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (full history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # ---- Gitee ----
+      - name: Push to Gitee
+        run: |
+          git remote add gitee "https://${{ secrets.GITEE_USERNAME }}:${{ secrets.GITEE_TOKEN }}@gitee.com/${{ secrets.GITEE_USERNAME }}/ocs-calculators.git"
+          git push gitee main --force-with-lease=main
+          git push gitee --tags
+
+      # ---- GitCode ----
+      - name: Push to GitCode
+        run: |
+          git remote add gitcode "https://${{ secrets.GITCODE_USERNAME }}:${{ secrets.GITCODE_TOKEN }}@gitcode.com/${{ secrets.GITCODE_USERNAME }}/ocs-calculators.git"
+          git push gitcode main --force-with-lease=main
+          git push gitcode --tags
