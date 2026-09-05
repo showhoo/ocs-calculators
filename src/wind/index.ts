@@ -1,8 +1,9 @@
 export { windMeta } from './meta';
 
-/** 标准大气条件下的空气密度，kg/m³ */
+/** 标准大气空气密度，kg/m³ */
 export const AIR_DENSITY_KG_PER_M3 = 1.225;
 
+/** 风荷载计算的输入参数 */
 export interface WindLoadInput {
   /** 风速 v，m/s */
   readonly windSpeedMPerS: number;
@@ -16,6 +17,56 @@ export interface WindLoadInput {
   readonly airDensityKgPerM3?: number;
 }
 
+/**
+ * 单位风荷载（Janssen 公式）：p = ½·ρ·v²·d·α·sin²θ，N/m。
+ * 线索直径按 mm → m 换算（×1e-3）。
+ */
+export function windLoadNPerM(params: WindLoadInput): number {
+  const { windSpeedMPerS, windAngleDeg, wireDiameterMM, dragCoefficient, airDensityKgPerM3 } = params;
+
+  if (!(windSpeedMPerS >= 0)) {
+    throw new RangeError(`风速不能为负，收到 ${windSpeedMPerS} m/s`);
+  }
+  if (!(wireDiameterMM > 0)) {
+    throw new RangeError(`线索直径必须为正数，收到 ${wireDiameterMM} mm`);
+  }
+  if (!(dragCoefficient > 0)) {
+    throw new RangeError(`风载体型系数必须为正数，收到 ${dragCoefficient}`);
+  }
+  if (!(windAngleDeg >= 0 && windAngleDeg <= 180)) {
+    throw new RangeError(`风向与线路夹角应为 0 ~ 180°，收到 ${windAngleDeg}°`);
+  }
+  const rho = airDensityKgPerM3 ?? AIR_DENSITY_KG_PER_M3;
+  if (!(rho > 0)) {
+    throw new RangeError(`空气密度必须为正数，收到 ${rho} kg/m³`);
+  }
+
+  const dM = wireDiameterMM * 1e-3;
+  const sinTheta = Math.sin((windAngleDeg * Math.PI) / 180);
+  return 0.5 * rho * windSpeedMPerS * windSpeedMPerS * dM * dragCoefficient * sinTheta * sinTheta;
+}
+
+/**
+ * 跨中风偏（简支索抛物线近似）：b = p·L² / (8·T)，m。
+ *
+ * @param windLoadNPerM 单位风荷载 p，N/m
+ * @param spanM 跨距 L，m
+ * @param tensionKN 线索张力 T，kN（内部 ×1e3 化 N）
+ */
+export function windDeflectionM(windLoadNPerM: number, spanM: number, tensionKN: number): number {
+  if (!(windLoadNPerM >= 0)) {
+    throw new RangeError(`单位风荷载不能为负，收到 ${windLoadNPerM} N/m`);
+  }
+  if (!(spanM > 0)) {
+    throw new RangeError(`跨距必须为正数，收到 ${spanM} m`);
+  }
+  if (!(tensionKN > 0)) {
+    throw new RangeError(`线索张力必须为正数，收到 ${tensionKN} kN`);
+  }
+  return (windLoadNPerM * spanM * spanM) / (8 * tensionKN * 1e3);
+}
+
+/** 风偏限界校验输入：风荷载参数 + 张力/跨距/拉出值/限界允许值 */
 export interface WindClearanceInput extends WindLoadInput {
   /** 线索张力 T，kN */
   readonly tensionKN: number;
@@ -27,6 +78,7 @@ export interface WindClearanceInput extends WindLoadInput {
   readonly clearanceLimitM: number;
 }
 
+/** 风偏限界校验结果 */
 export interface WindClearanceResult {
   /** 单位风荷载 p，N/m */
   readonly windLoadNPerM: number;
@@ -43,76 +95,9 @@ export interface WindClearanceResult {
 }
 
 /**
- * 单位风荷载：p = ½·ρ·v²·d·α·sin²θ，N/m。
- *
- * 注意公式使用 sin²θ 而非 sinθ —— 风向与线路平行时（θ = 0° / 180°）不产生横向偏移。
- *
- * @returns 单位长度风荷载，N/m
- */
-export function windLoadNPerM(params: WindLoadInput): number {
-  const {
-    windSpeedMPerS,
-    windAngleDeg,
-    wireDiameterMM,
-    dragCoefficient,
-    airDensityKgPerM3,
-  } = params;
-
-  if (!(windSpeedMPerS >= 0)) {
-    throw new RangeError(`风速不能为负，收到 ${windSpeedMPerS} m/s`);
-  }
-  if (!(wireDiameterMM > 0)) {
-    throw new RangeError(`线索直径必须为正数，收到 ${wireDiameterMM} mm`);
-  }
-  if (!(dragCoefficient > 0)) {
-    throw new RangeError(`风载体型系数必须为正数，收到 ${dragCoefficient}`);
-  }
-  if (!(windAngleDeg >= 0 && windAngleDeg <= 180)) {
-    throw new RangeError(
-      `风向与线路夹角应为 0 ~ 180°，收到 ${windAngleDeg}°`,
-    );
-  }
-
-  const rho = airDensityKgPerM3 ?? AIR_DENSITY_KG_PER_M3;
-  if (!(rho > 0)) {
-    throw new RangeError(`空气密度必须为正数，收到 ${rho} kg/m³`);
-  }
-
-  const dM = wireDiameterMM * 1e-3;
-  const sinTheta = Math.sin((windAngleDeg * Math.PI) / 180);
-
-  return 0.5 * rho * windSpeedMPerS * windSpeedMPerS * dM * dragCoefficient * sinTheta * sinTheta;
-}
-
-/**
- * 跨中风偏（简支索抛物线近似）：b = p·L² / (8·T)，m。
- *
- * @param windLoadNPerM 单位风荷载 p，N/m
- * @param spanM 跨距 L，m
- * @param tensionKN 线索张力 T，kN
- * @returns 跨中风偏，m
- */
-export function windDeflectionM(
-  windLoadNPerM: number,
-  spanM: number,
-  tensionKN: number,
-): number {
-  if (!(windLoadNPerM >= 0)) {
-    throw new RangeError(`单位风荷载不能为负，收到 ${windLoadNPerM} N/m`);
-  }
-  if (!(spanM > 0)) {
-    throw new RangeError(`跨距必须为正数，收到 ${spanM} m`);
-  }
-  if (!(tensionKN > 0)) {
-    throw new RangeError(`线索张力必须为正数，收到 ${tensionKN} kN`);
-  }
-  return (windLoadNPerM * spanM * spanM) / (8 * tensionKN * 1000);
-}
-
-/**
  * 风偏限界校验：计算跨中风偏 b，叠加拉出值 a，与限界允许值比较。
  *
- * 判据：b + a ≤ 限界允许值 → 合格
+ * 判据：b + a ≤ 限界允许值 → 合格。
  */
 export function windClearanceCheck(input: WindClearanceInput): WindClearanceResult {
   const { staggerM, clearanceLimitM } = input;

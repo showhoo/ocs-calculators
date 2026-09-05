@@ -1,6 +1,6 @@
 {
   "name": "ocs-calculators",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "铁路接触网（OCS）工程计算工具集 —— 张力、弛度、吊弦、风偏移等计算，零依赖纯函数实现 / Railway overhead contact system (OCS) engineering calculators as zero-dependency pure functions",
   "keywords": [
     "catenary",
