@@ -180,7 +180,7 @@ src/<模块名>/
 
 ## 相关项目
 
-- [ocs-wiki-content](https://github.com/showhoo/ocs-wiki-content) — 504 条词条快照与结构化数据（规划中）
+- ocs-wiki-content — 504 条词条快照与结构化数据（规划中，仓库未建，建仓后再挂链接）
 - [itswe](https://github.com/showhoo/itswe) — 站点介绍与建站文档
 
 ## 赞助
@@ -192,7 +192,7 @@ src/<模块名>/
 ## 授权
 
 - **代码**：[MIT](./LICENSE)
-- **配套百科内容**：CC BY-SA 4.0（见 ocs-wiki-content 仓库）
+- **配套百科内容**：CC BY-SA 4.0（见 [itswe](https://github.com/showhoo/itswe) 仓库 LICENSE 与 [itswe.com](https://www.itswe.com)）
 
 ---
 
