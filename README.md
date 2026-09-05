@@ -8,7 +8,7 @@
 [English](./README_EN.md) | 简体中文
 
 ![npm version](https://img.shields.io/npm/v/ocs-calculators)
-![CI](https://github.com/showhoo/ocs-calculators/actions/workflows/ci.yml/badge.svg)
+[![CI](https://github.com/showhoo/ocs-calculators/actions/workflows/ci.yml/badge.svg)](https://github.com/showhoo/ocs-calculators/actions/workflows/ci.yml)
 ![license](https://img.shields.io/npm/l/ocs-calculators)
 ![dependencies](https://img.shields.io/badge/dependencies-0-brightgreen)
 
@@ -62,6 +62,13 @@ for (const p of curve) {
 
 上面这段输出与 <https://www.itswe.com/calculator/tension/> 在线计算器完全一致，测试用例里做了逐行回归。
 
+也支持按模块子路径导入（利于打包工具做 tree-shaking）：
+
+```ts
+import { windClearanceCheck } from 'ocs-calculators/wind';
+import { wearRatio } from 'ocs-calculators/wear';
+```
+
 ## 12 个计算器（全部实现）
 
 对应 <https://www.itswe.com/Category:tools> 的 12 个在线计算器，全部已实现并逐项回归。
@@ -108,6 +115,18 @@ console.log(tensionMeta.references);  // 依据标准号，以及"该标准是�
 console.log(tensionMeta.scope);       // 适用范围：跨距 20~90 m、E 50~200 GPa …
 console.log(tensionMeta.disclaimer);  // 免责声明
 ```
+
+## 与站点实现的同步政策
+
+本仓库是 [itswe.com](https://www.itswe.com) 在线计算器的公式算法层，同步基准为站点资产
+[`calculator/assets/calc-core.js`](https://www.itswe.com/calculator/assets/calc-core.js)：
+
+- `src/` 中每个模块的公式与默认参数，以 `calc-core.js` 对应实现为准；
+- 站点侧公式变更时，本仓库同步更新并补充/修订对应测试；
+- 本仓库的公式变更同样会回流站点，两边的计算结果保持一致；
+- `meta.ts` 中的参考依据（标准号 + 年份）随两侧更新同步修订。
+
+当前同步状态：`calc-core.js` 与 `src/` 一致（2026-09-05 校验，152 项测试全绿）。
 
 ## ⚠️ 免责声明
 
@@ -156,6 +175,8 @@ src/<模块名>/
 1. 只导出纯函数，不引第三方运行时依赖
 2. `meta.ts` 必须写全 `formula` / `references` / `scope` / `disclaimer`
 3. 测试的期望值取自站点在线计算器，容差 1%（站点输出经过显示取整）
+
+完整约定与同步政策见 [CONTRIBUTING.md](./CONTRIBUTING.md)。
 
 ## 相关项目
 

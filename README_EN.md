@@ -8,7 +8,7 @@
 [简体中文](./README.md) | English
 
 ![npm version](https://img.shields.io/npm/v/ocs-calculators)
-![CI](https://github.com/showhoo/ocs-calculators/actions/workflows/ci.yml/badge.svg)
+[![CI](https://github.com/showhoo/ocs-calculators/actions/workflows/ci.yml/badge.svg)](https://github.com/showhoo/ocs-calculators/actions/workflows/ci.yml)
 ![license](https://img.shields.io/npm/l/ocs-calculators)
 ![dependencies](https://img.shields.io/badge/dependencies-0-brightgreen)
 

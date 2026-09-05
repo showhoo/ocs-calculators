@@ -1,6 +1,6 @@
 {
   "name": "ocs-calculators",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "铁路接触网（OCS）工程计算工具集 —— 张力、弛度、吊弦、风偏移等计算，零依赖纯函数实现 / Railway overhead contact system (OCS) engineering calculators as zero-dependency pure functions",
   "keywords": [
     "catenary",
@@ -26,7 +26,68 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
-    }
+    },
+    "./ampacity": {
+      "types": "./dist/ampacity/index.d.ts",
+      "import": "./dist/ampacity/index.js",
+      "require": "./dist/ampacity/index.cjs"
+    },
+    "./copper": {
+      "types": "./dist/copper/index.d.ts",
+      "import": "./dist/copper/index.js",
+      "require": "./dist/copper/index.cjs"
+    },
+    "./curve-stagger": {
+      "types": "./dist/curve-stagger/index.d.ts",
+      "import": "./dist/curve-stagger/index.js",
+      "require": "./dist/curve-stagger/index.cjs"
+    },
+    "./dropper": {
+      "types": "./dist/dropper/index.d.ts",
+      "import": "./dist/dropper/index.js",
+      "require": "./dist/dropper/index.cjs"
+    },
+    "./force": {
+      "types": "./dist/force/index.d.ts",
+      "import": "./dist/force/index.js",
+      "require": "./dist/force/index.cjs"
+    },
+    "./icing": {
+      "types": "./dist/icing/index.d.ts",
+      "import": "./dist/icing/index.js",
+      "require": "./dist/icing/index.cjs"
+    },
+    "./stroke": {
+      "types": "./dist/stroke/index.d.ts",
+      "import": "./dist/stroke/index.js",
+      "require": "./dist/stroke/index.cjs"
+    },
+    "./tension": {
+      "types": "./dist/tension/index.d.ts",
+      "import": "./dist/tension/index.js",
+      "require": "./dist/tension/index.cjs"
+    },
+    "./voltage-drop": {
+      "types": "./dist/voltage-drop/index.d.ts",
+      "import": "./dist/voltage-drop/index.js",
+      "require": "./dist/voltage-drop/index.cjs"
+    },
+    "./wavespeed": {
+      "types": "./dist/wavespeed/index.d.ts",
+      "import": "./dist/wavespeed/index.js",
+      "require": "./dist/wavespeed/index.cjs"
+    },
+    "./wind": {
+      "types": "./dist/wind/index.d.ts",
+      "import": "./dist/wind/index.js",
+      "require": "./dist/wind/index.cjs"
+    },
+    "./wear": {
+      "types": "./dist/wear/index.d.ts",
+      "import": "./dist/wear/index.js",
+      "require": "./dist/wear/index.cjs"
+    },
+    "./package.json": "./package.json"
   },
   "files": [
     "dist",
@@ -37,7 +98,7 @@
   ],
   "sideEffects": false,
   "scripts": {
-    "build": "tsup src/index.ts --format esm,cjs --dts --sourcemap --target es2022",
+    "build": "tsup",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",

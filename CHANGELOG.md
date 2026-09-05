@@ -3,6 +3,16 @@
 本文件格式遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 版本号遵循[语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [0.1.2] - 2026-09-06
+
+### 新增
+
+- **子路径导入**：支持 `import 'ocs-calculators/wind'` 等按模块导入，
+  构建改为多入口 + ESM splitting，利于打包工具 tree-shaking
+- `CONTRIBUTING.md`（贡献指南，含与站点 `calc-core.js` 的同步政策）与
+  `SECURITY.md`（安全与公式纠错报告流程）
+- README 增加同步政策章节与子路径导入示例
+
 ## [0.1.1] - 2026-09-05
 
 ### 修复
