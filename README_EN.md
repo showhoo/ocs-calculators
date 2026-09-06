@@ -137,7 +137,7 @@ src/<module>/
 
 Development and maintenance of this project is supported by:
 
-**[Henan Chuangwei Railway Equipment Co., Ltd.](https://www.chuangwit.com)** (河南创为铁路器材有限公司)
+**[Henan Chuangwit Railway Equipment Co., Ltd.](https://www.chuangwit.com)** (河南创为铁路器材有限公司)
 
 ## License
 
