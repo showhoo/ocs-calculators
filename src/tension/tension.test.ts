@@ -33,7 +33,7 @@ function expectClose(actual: number, expected: number, relTol = 0.005): void {
 /**
  * 站点 https://www.itswe.com/calculator/tension/ 已发布的输出表。
  *
- * 参数：CTHM-120（A=120 mm²），E=120 GPa，α=1.7e-5/℃，
+ * 参数：CTMH-120（A=120 mm²），E=120 GPa，α=1.7e-5/℃，
  *       当量跨距 l_D=55 m，基准 T₁=20 kN @ t₁=-20 ℃。
  *
  * 自重口径（2026-08-31 已确定）：

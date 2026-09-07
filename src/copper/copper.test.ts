@@ -7,7 +7,7 @@ import {
 } from '../common/resistance';
 
 /**
- * 站点 https://www.itswe.com/calculator/copper/ 已发布的输出（CTHM-120）：
+ * 站点 https://www.itswe.com/calculator/copper/ 已发布的输出（CTMH-120）：
  *   单位重量 1082 kg/km，总重量 1082 kg，r₂₀ = 0.2113 Ω/km，r_T = 0.2113 Ω/km
  *
  * 参数反推：r_T = r₂₀ → T = 20 ℃；总重量 = 单位重量 → l = 1 km。
@@ -26,10 +26,10 @@ import {
  * **方法论教训**：数据层正确 ≠ 渲染正确。核对数值时必须同时验证数据源与显示层，
  * 只查其一会导致误判（本仓库曾据此错误撤回过一次结论）。
  */
-const SITE_INPUT = { model: 'CTHM-120' as const, lengthKm: 1, ambientTempDegC: 20 };
+const SITE_INPUT = { model: 'CTMH-120' as const, lengthKm: 1, ambientTempDegC: 20 };
 
 describe('copper - 与站点已发布输出回归', () => {
-  it('CTHM-120 / 1 km / 20℃', () => {
+  it('CTMH-120 / 1 km / 20℃', () => {
     const r = wireLookup(SITE_INPUT);
     expect(r.unitWeightKgPerKm).toBe(1082);
     expect(r.totalWeightKg).toBeCloseTo(1082, 9);
@@ -56,34 +56,34 @@ describe('copper - 参数表完整性', () => {
   });
 
   it('note 字段标明各行实际取自标准的哪一行', () => {
-    // 站点型号代码与标准型号不同名：CTHM→CTMH、CTHA→CTA、CTHS→CTS
-    expect(TB2809_WIRE_PARAMS['CTHM-120'].note).toContain('CTMH');
-    expect(TB2809_WIRE_PARAMS['CTHA-120'].note).toContain('CTA');
-    expect(TB2809_WIRE_PARAMS['CTHS-150'].note).toContain('CTS');
+    // 站点型号代码与标准型号不同名：CTMH→CTMH、CTAH→CTA、CTS→CTS
+    expect(TB2809_WIRE_PARAMS['CTMH-120'].note).toContain('CTMH');
+    expect(TB2809_WIRE_PARAMS['CTAH-120'].note).toContain('CTA');
+    expect(TB2809_WIRE_PARAMS['CTS-150'].note).toContain('CTS');
     for (const [, p] of Object.entries(TB2809_WIRE_PARAMS)) {
       expect(p.note.length).toBeGreaterThan(0);
     }
   });
 
   it('150 mm² 单位重量约为 120 mm² 的 1.25 倍', () => {
-    const w120 = TB2809_WIRE_PARAMS['CTHM-120'].unitWeightKgPerKm;
-    const w150 = TB2809_WIRE_PARAMS['CTHM-150'].unitWeightKgPerKm;
+    const w120 = TB2809_WIRE_PARAMS['CTMH-120'].unitWeightKgPerKm;
+    const w150 = TB2809_WIRE_PARAMS['CTMH-150'].unitWeightKgPerKm;
     expect(w150 / w120).toBeCloseTo(150 / 120, 1);
   });
 
   it('电阻与截面成反比（同材质）', () => {
-    const r120 = TB2809_WIRE_PARAMS['CTHM-120'].r20OhmPerKm;
-    const r150 = TB2809_WIRE_PARAMS['CTHM-150'].r20OhmPerKm;
+    const r120 = TB2809_WIRE_PARAMS['CTMH-120'].r20OhmPerKm;
+    const r150 = TB2809_WIRE_PARAMS['CTMH-150'].r20OhmPerKm;
     // 同材质下 r × A 近似为常数
     expect(r120 * 120).toBeCloseTo(r150 * 150, 1);
   });
 
   it('载流量与 TB/T 2809-2017 表5 150℃ 口径一致', () => {
     // 铜银 120：室内 515、室外 680
-    expect(TB2809_WIRE_PARAMS['CTHA-120'].ampacityIndoor150A).toBe(515);
-    expect(TB2809_WIRE_PARAMS['CTHA-120'].ampacityOutdoor150A).toBe(680);
+    expect(TB2809_WIRE_PARAMS['CTAH-120'].ampacityIndoor150A).toBe(515);
+    expect(TB2809_WIRE_PARAMS['CTAH-120'].ampacityOutdoor150A).toBe(680);
     // 铜锡 150：室外 790
-    expect(TB2809_WIRE_PARAMS['CTHS-150'].ampacityOutdoor150A).toBe(790);
+    expect(TB2809_WIRE_PARAMS['CTS-150'].ampacityOutdoor150A).toBe(790);
   });
 });
 

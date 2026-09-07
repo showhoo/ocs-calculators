@@ -5,7 +5,7 @@ import { sectionFromDiameterMM2, wearRatio, type WearByAreaInput } from './index
  * 期望值由站点 `/calculator/assets/calc-core.js` 的 wearRate() 源码公式
  * 独立算出：η = (A₀ − A) / A₀ × 100%，η > 20%（严格大于）判为更换。
  *
- * 磨耗率页默认 A₀ = 120 mm²（CTHM-120 标称截面）。
+ * 磨耗率页默认 A₀ = 120 mm²（CTMH-120 标称截面）。
  * 残径模式按 A = π·d²/4 换算。
  */
 const SITE_INPUT: WearByAreaInput = {

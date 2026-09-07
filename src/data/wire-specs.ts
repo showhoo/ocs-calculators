@@ -13,12 +13,12 @@ import { G0 } from '../types';
  *   注：参考单位质量按密度 8.94 g/cm³ 计算
  * 即标准的 8.94 g/cm³ 是配「计算截面」（把尺寸公差计入后的截面）用的，
  * 不是配「标称截面」用的：121 × 8.94 × 1e-3 = 1.0817 ≈ 1.082 kg/m。
- * 因此 CTHM-120 自重 g = 1.082 × 9.81 = 10.61442 N/m，
+ * 因此 CTMH-120 自重 g = 1.082 × 9.81 = 10.61442 N/m，
  * 与站点 /calculator/tension/ 预设 rho=1.082、COPPER_TABLE.unitWeight=1082 一致。
  * 早期版本用标称截面 120 直接推算得 1.0728 kg/m，偏低约 0.85%，已废弃。
  *
  * 依据：TB/T 2810-2017（纯铜）、TB/T 2821-2017（铜银）规格尺寸表；
- * CTHM/CTHA 型号口径与 TB/T 2809-2017 的对应关系见 copper 模块 note 字段。
+ * CTMH/CTAH 型号口径与 TB/T 2809-2017 的对应关系见 copper 模块 note 字段。
  */
 
 export interface WireSpec {
@@ -86,8 +86,8 @@ export const COPPER_ALLOY_ALPHA_PER_DEG_C = 1.7e-5;
 export const WIRE_PRESETS: readonly WireSpec[] = [
   {
     id: 'cthm120',
-    name: 'CTHM-120（铜镁 120）',
-    nameEn: 'CTHM-120 (CuMg 120 mm²)',
+    name: 'CTMH-120（铜镁 120）',
+    nameEn: 'CTMH-120 (CuMg 120 mm²)',
     crossSectionMM2: 120,
     calculatedSectionMM2: 121,
     elasticModulusGPa: 120,
@@ -96,8 +96,8 @@ export const WIRE_PRESETS: readonly WireSpec[] = [
   },
   {
     id: 'cthm150',
-    name: 'CTHM-150（铜镁 150）',
-    nameEn: 'CTHM-150 (CuMg 150 mm²)',
+    name: 'CTMH-150（铜镁 150）',
+    nameEn: 'CTMH-150 (CuMg 150 mm²)',
     crossSectionMM2: 150,
     calculatedSectionMM2: 151,
     elasticModulusGPa: 120,
@@ -106,8 +106,8 @@ export const WIRE_PRESETS: readonly WireSpec[] = [
   },
   {
     id: 'ctha120',
-    name: 'CTHA-120（铜银 120）',
-    nameEn: 'CTHA-120 (CuAg 120 mm²)',
+    name: 'CTAH-120（铜银 120）',
+    nameEn: 'CTAH-120 (CuAg 120 mm²)',
     crossSectionMM2: 120,
     calculatedSectionMM2: 121,
     elasticModulusGPa: 120,
