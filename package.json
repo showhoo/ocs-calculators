@@ -1,6 +1,6 @@
 {
   "name": "ocs-calculators",
-  "version": "0.1.3",
+  "version": "0.2.0",
   "description": "铁路接触网（OCS）工程计算工具集 —— 张力、弛度、吊弦、风偏移等计算，零依赖纯函数实现 / Railway overhead contact system (OCS) engineering calculators as zero-dependency pure functions",
   "keywords": [
     "catenary",
@@ -87,7 +87,47 @@
       "import": "./dist/wear/index.js",
       "require": "./dist/wear/index.cjs"
     },
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "steady-arm": {
+      "types": "./dist/steady-arm/index.d.ts",
+      "import": "./dist/steady-arm/index.js",
+      "require": "./dist/steady-arm/index.cjs"
+    },
+    "cross-span": {
+      "types": "./dist/cross-span/index.d.ts",
+      "import": "./dist/cross-span/index.js",
+      "require": "./dist/cross-span/index.cjs"
+    },
+    "bvalue": {
+      "types": "./dist/bvalue/index.d.ts",
+      "import": "./dist/bvalue/index.js",
+      "require": "./dist/bvalue/index.cjs"
+    },
+    "sag": {
+      "types": "./dist/sag/index.d.ts",
+      "import": "./dist/sag/index.js",
+      "require": "./dist/sag/index.cjs"
+    },
+    "anchor-length": {
+      "types": "./dist/anchor-length/index.d.ts",
+      "import": "./dist/anchor-length/index.js",
+      "require": "./dist/anchor-length/index.cjs"
+    },
+    "creepage": {
+      "types": "./dist/creepage/index.d.ts",
+      "import": "./dist/creepage/index.js",
+      "require": "./dist/creepage/index.cjs"
+    },
+    "pole-capacity": {
+      "types": "./dist/pole-capacity/index.d.ts",
+      "import": "./dist/pole-capacity/index.js",
+      "require": "./dist/pole-capacity/index.cjs"
+    },
+    "cantilever": {
+      "types": "./dist/cantilever/index.d.ts",
+      "import": "./dist/cantilever/index.js",
+      "require": "./dist/cantilever/index.cjs"
+    }
   },
   "files": [
     "dist",
