@@ -29,6 +29,8 @@
 npm install ocs-calculators
 ```
 
+> ⚠️ **请使用 ≥ 0.2.1**。`0.2.0` 曾因子路径 exports 键写错（缺少 `./` 前缀）导致 `import 'ocs-calculators'` 报 `ERR_INVALID_PACKAGE_CONFIG`，已由 `0.2.1` 修复。裸 `npm install ocs-calculators` 会取 latest（0.2.1），无需特殊处理；若你的依赖显式锁了 `@0.2.0`，请升级到 `@0.2.1`。
+
 ## 快速开始
 
 ```ts
@@ -67,11 +69,19 @@ for (const p of curve) {
 ```ts
 import { windClearanceCheck } from 'ocs-calculators/wind';
 import { wearRatio } from 'ocs-calculators/wear';
+import { steadyArmAngleDeg } from 'ocs-calculators/steady-arm';
+import { crossSpanAnalyze } from 'ocs-calculators/cross-span';
+import { bValue } from 'ocs-calculators/bvalue';
+import { sagMM } from 'ocs-calculators/sag';
+import { anchorLengthCheck } from 'ocs-calculators/anchor-length';
+import { creepageCheck } from 'ocs-calculators/creepage';
+import { poleCapacityCheck } from 'ocs-calculators/pole-capacity';
+import { cantileverCut } from 'ocs-calculators/cantilever';
 ```
 
-## 12 个计算器（全部实现）
+## 20 个计算器（全部实现）
 
-对应 <https://www.itswe.com/Category:tools> 的 12 个在线计算器，全部已实现并逐项回归。
+对应 <https://www.itswe.com/Category:tools> 的 20 个在线计算器，全部已实现并逐项回归。
 
 | 状态 | 计算器 | 模块 | 在线地址 |
 |---|---|---|---|
@@ -87,9 +97,17 @@ import { wearRatio } from 'ocs-calculators/wear';
 | ✅ 已实现 | 电压降校核 | `voltage-drop` | [/calculator/voltage-drop/](https://www.itswe.com/calculator/voltage-drop/) |
 | ✅ 已实现 | 曲线拉出值校核 | `curve-stagger` | [/calculator/curve-stagger/](https://www.itswe.com/calculator/curve-stagger/) |
 | ✅ 已实现 | 覆冰荷载校核 | `icing` | [/calculator/icing/](https://www.itswe.com/calculator/icing/) |
+| ✅ 已实现 | 弛度速算 | `sag` | [/calculator/sag/](https://www.itswe.com/calculator/sag/) |
+| ✅ 已实现 | b 值（坠砣高度）安装曲线 | `bvalue` | [/calculator/bvalue/](https://www.itswe.com/calculator/bvalue/) |
+| ✅ 已实现 | 绝缘子爬电距离选型校核 | `creepage` | [/calculator/creepage/](https://www.itswe.com/calculator/creepage/) |
+| ✅ 已实现 | 锚段长度张力差校核 | `anchor-length` | [/calculator/anchor-length/](https://www.itswe.com/calculator/anchor-length/) |
+| ✅ 已实现 | 定位器坡度校核 | `steady-arm` | [/calculator/steady-arm/](https://www.itswe.com/calculator/steady-arm/) |
+| ✅ 已实现 | 软横跨负载计算 | `cross-span` | [/calculator/cross-span/](https://www.itswe.com/calculator/cross-span/) |
+| ✅ 已实现 | 支柱容量选型校核 | `pole-capacity` | [/calculator/pole-capacity/](https://www.itswe.com/calculator/pole-capacity/) |
+| ✅ 已实现 | 腕臂预配（勾股下料） | `cantilever` | [/calculator/cantilever/](https://www.itswe.com/calculator/cantilever/) |
 
-所有公式与默认参数均取自站点 `/calculator/assets/calc-core.js` 源码，
-单元测试的期望值由源码公式独立算出，未从渲染结果反推。
+原 12 个模块的公式与默认参数取自站点 `/calculator/assets/calc-core.js` 源码；
+新增的 8 个模块（sag/bvalue/creepage/anchor-length/steady-arm/cross-span/pole-capacity/cantilever）为站点**内联引擎计算器**（引擎直嵌页面 HTML，不经 calc-core），本仓库按其 online 页面公式提炼，单元测试期望值由公式独立算出，未从服务器渲染结果反推。
 
 ## 单位约定
 
@@ -118,15 +136,15 @@ console.log(tensionMeta.disclaimer);  // 免责声明
 
 ## 与站点实现的同步政策
 
-本仓库是 [itswe.com](https://www.itswe.com) 在线计算器的公式算法层，同步基准为站点资产
-[`calculator/assets/calc-core.js`](https://www.itswe.com/calculator/assets/calc-core.js)：
+本仓库是 [itswe.com](https://www.itswe.com) 在线计算器的公式算法层，同步基准为站点资产：
 
-- `src/` 中每个模块的公式与默认参数，以 `calc-core.js` 对应实现为准；
+- 原 12 个模块以 [`calculator/assets/calc-core.js`](https://www.itswe.com/calculator/assets/calc-core.js) 为准；
+- 新增 8 个模块（`sag`/`bvalue`/`creepage`/`anchor-length`/`steady-arm`/`cross-span`/`pole-capacity`/`cantilever`）为站点**内联引擎计算器**（引擎直嵌页面 HTML，不经 calc-core），以其 online 页面公式为基准；
 - 站点侧公式变更时，本仓库同步更新并补充/修订对应测试；
 - 本仓库的公式变更同样会回流站点，两边的计算结果保持一致；
 - `meta.ts` 中的参考依据（标准号 + 年份）随两侧更新同步修订。
 
-当前同步状态：`calc-core.js` 与 `src/` 一致（2026-09-05 校验，152 项测试全绿）。
+当前同步状态：20 个模块与站点一致（2026-09-14 校验，212 项测试全绿）。
 
 ## ⚠️ 免责声明
 
