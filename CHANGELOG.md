@@ -3,6 +3,15 @@
 本文件格式遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 版本号遵循[语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [Unreleased]
+
+### 修复
+
+- **输入域守卫补齐（anchor-length）**：`anchorLengthCheck` 直线支当跨距 ≥ 半锚段长度 L 时
+  抛 `RangeError`——此前 (L−l) 为负产生负张力增量并静默判「合格」；g_j/α/Δt 非正、
+  曲线支定位器数量 <1 一并抛错。守卫口径=镜像站点页面 data-min/max 有效输入域
+  （站点页面自身受输入域约束，不受影响）。测试 215→218。
+
 ## [0.2.2] - 2026-09-15
 
 ### 修复

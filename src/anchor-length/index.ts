@@ -50,6 +50,7 @@ export function anchorLengthCheck(input: AnchorLengthInput): AnchorLengthResult 
     if (!(curveRadiusM && curveRadiusM > 0)) throw new RangeError('曲线半径必须为正');
     if (!(regulatorLengthM && regulatorLengthM > 0)) throw new RangeError('定位器长度必须为正');
     const n = regulatorCount ?? 1;
+    if (!(n >= 1)) throw new RangeError('定位器数量必须不小于 1，收到 ' + n);
     const one = (regulatorLengthM * ratedTensionKN * 1e3) / curveRadiusM; // T_jw = d·T_jm/R
     deltaN = one * n;
   } else {
@@ -60,6 +61,10 @@ export function anchorLengthCheck(input: AnchorLengthInput): AnchorLengthResult 
     if (wireWeightKNPerM === undefined || expansionCoeff === undefined || tempDeltaC === undefined) {
       throw new RangeError('直线区段需提供 g_j、α、Δt');
     }
+    if (!(wireWeightKNPerM > 0)) throw new RangeError('接触线单位重必须为正，收到 ' + wireWeightKNPerM + ' kN/m');
+    if (!(expansionCoeff > 0)) throw new RangeError('线胀系数必须为正，收到 ' + expansionCoeff + ' 1/℃');
+    if (!(tempDeltaC > 0)) throw new RangeError('计算温差必须为正，收到 ' + tempDeltaC + ' ℃');
+    if (spanM >= halfSpanM) throw new RangeError('跨距必须小于半锚段长度，收到 l=' + spanM + ' m、L=' + halfSpanM + ' m');
     // T_jd = L(L−l)·g_j·α·Δt/(2c)，kN → N
     deltaN = (halfSpanM * (halfSpanM - spanM) * wireWeightKNPerM * expansionCoeff * tempDeltaC) / (2 * dropperLengthM) * 1e3;
   }
