@@ -16,6 +16,9 @@ describe('poleCapacity', () => {
     const r = poleCapacityCheck({ section: 'line', contactWireTensionKN: 45, messengerTensionKN: 35, staggerMM: 500, spanM: 30, resultantHeightM: 12, windPressurePa: 1500, poleWidthM: 1, poleHeightM: 20 });
     expect(r.selection).toBe('G250');
   });
+  it('零跨距抛错', () => {
+    expect(() => poleCapacityCheck({ section: 'line', contactWireTensionKN: 25, messengerTensionKN: 15, staggerMM: 200, spanM: 0, resultantHeightM: 7, windPressurePa: 500, poleWidthM: 0.3, poleHeightM: 10 })).toThrow(RangeError);
+  });
   it('曲线缺半径抛错', () => {
     expect(() => poleCapacityCheck({ section: 'curve', contactWireTensionKN: 25, messengerTensionKN: 15, staggerMM: 200, spanM: 50, resultantHeightM: 7, windPressurePa: 500, poleWidthM: 0.3, poleHeightM: 10 })).toThrow(RangeError);
   });

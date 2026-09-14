@@ -29,6 +29,8 @@ export function tensionFromSagKN(weightNPerM: number, spanM: number, sagMM: numb
 
 /** 反算最大跨距：给定张力与限值弛度 l_max = √(8·T·f_max/g)，m */
 export function maxSpanFromSagM(weightNPerM: number, tensionKN: number, sagLimitMM: number): number {
+  if (!(tensionKN > 0)) throw new RangeError('张力必须为正，收到 ' + tensionKN + ' kN');
+  if (!(weightNPerM > 0)) throw new RangeError('单位重必须为正，收到 ' + weightNPerM + ' N/m');
   if (!(sagLimitMM > 0)) throw new RangeError('限值弛度必须为正，收到 ' + sagLimitMM + ' mm');
   const sagM = sagLimitMM / 1e3;
   return Math.sqrt((8 * tensionKN * 1e3 * sagM) / weightNPerM);

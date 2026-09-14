@@ -47,6 +47,7 @@ export interface PoleCapacityResult {
 export function poleCapacityCheck(input: PoleCapacityInput): PoleCapacityResult {
   const { section, contactWireTensionKN, messengerTensionKN, staggerMM, spanM, resultantHeightM, windPressurePa, poleWidthM, poleHeightM, wireWindLoadN } = input;
   if (!(contactWireTensionKN >= 0) || !(messengerTensionKN >= 0)) throw new RangeError('张力不能为负');
+  if (!(spanM > 0)) throw new RangeError('跨距必须为正，收到 ' + spanM + ' m');
   const T = contactWireTensionKN + messengerTensionKN;
   const a = staggerMM / 1e3;
   const Fz = (4 * T * a) / spanM; // kN

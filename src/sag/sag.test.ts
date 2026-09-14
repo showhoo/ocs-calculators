@@ -17,4 +17,9 @@ describe('sag', () => {
   it('零张力抛错', () => {
     expect(() => sagMM({ tensionKN: 0, spanM: 50, weightNPerM: 10.6 })).toThrow(RangeError);
   });
+  it('最大跨距：张力/单位重非正抛错', () => {
+    expect(() => maxSpanFromSagM(10.6, 0, 150)).toThrow(RangeError);
+    expect(() => maxSpanFromSagM(0, 25, 150)).toThrow(RangeError);
+    expect(() => maxSpanFromSagM(-1, 25, 150)).toThrow(RangeError);
+  });
 });

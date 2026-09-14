@@ -27,7 +27,7 @@ export function creepageCheck(input: {
   const kv = input.maxVoltageKV ?? 29;
   const uscdBands = USCD_BANDS.map((b) => ({
     label: b.label,
-    mm: b.max === Infinity ? Math.round(b.min * kv) : Math.round(b.min * kv),
+    mm: Math.round(b.min * kv),
   }));
   return { floorMM, passes: input.creepageMM >= floorMM, uscdBands };
 }

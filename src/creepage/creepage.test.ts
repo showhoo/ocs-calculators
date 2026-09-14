@@ -18,4 +18,9 @@ describe('creepage', () => {
     const r = creepageCheck({ creepageMM: 1500 });
     expect(r.uscdBands[0]?.mm).toBe(696);
   });
+  it('苛刻档折算不泄漏 Infinity', () => {
+    const r = creepageCheck({ creepageMM: 1500 });
+    expect(r.uscdBands[2]?.mm).toBe(1392);
+    expect(Number.isFinite(r.uscdBands[2]?.mm ?? NaN)).toBe(true);
+  });
 });

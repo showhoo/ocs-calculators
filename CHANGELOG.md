@@ -3,6 +3,31 @@
 本文件格式遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 版本号遵循[语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [0.2.2] - 2026-09-15
+
+### 修复
+
+- **输入防护补齐**：`sag` 的 `maxSpanFromSagM` 对张力/单位重非正值抛 `RangeError`
+  （此前 0 或负数会静默返回 `0` / `NaN` / `Infinity`）；`pole-capacity` 的
+  `poleCapacityCheck` 对零跨距抛 `RangeError`（此前除零静默返回 `Infinity`）
+- `creepage` 移除比距三档折算中的等值分支死代码（行为不变，统一取档位下限折算）
+
+## [0.2.1] - 2026-09-14
+
+### 修复
+
+- **子路径导出回归**：v0.2.0 新增 8 个模块的 `exports` 键缺 `./` 前缀，
+  子路径导入（如 `ocs-calculators/steady-arm`）全部抛
+  `ERR_PACKAGE_PATH_NOT_EXPORTED`，已逐键修正
+
+## [0.2.0] - 2026-09-14
+
+### 新增
+
+- **8 个新计算器模块**：steady-arm（定位器坡度）、cross-span（软横跨负载）、
+  bvalue（坠砣高度）、sag（弛度）、anchor-length（锚段校核）、creepage（爬电选型）、
+  pole-capacity（支柱容量）、cantilever（腕臂预配），共 20 模块 212 测试
+
 ## [0.1.3] - 2026-09-07
 
 ### 修复
