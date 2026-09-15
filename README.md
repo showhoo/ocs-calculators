@@ -2,12 +2,15 @@
 
 **铁路接触网（OCS）工程计算工具 —— 公式公开、零依赖、可直接在你的项目里引用。**
 
+**20 个模块 · 218 项单元测试 · 零依赖 · 纯函数 TypeScript**（Node ≥ 18）
+
 🔗 在线使用：<https://www.itswe.com/Category:tools>
-📖 配套百科：<https://www.itswe.com>（504 条接触网专业词条）
+📖 配套百科：<https://www.itswe.com>（670+ 页接触网专业内容）
 
 [English](./README_EN.md) | 简体中文
 
 ![npm version](https://img.shields.io/npm/v/ocs-calculators)
+![npm downloads](https://img.shields.io/npm/dm/ocs-calculators)
 [![CI](https://github.com/showhoo/ocs-calculators/actions/workflows/ci.yml/badge.svg)](https://github.com/showhoo/ocs-calculators/actions/workflows/ci.yml)
 ![license](https://img.shields.io/npm/l/ocs-calculators)
 ![dependencies](https://img.shields.io/badge/dependencies-0-brightgreen)
@@ -29,7 +32,9 @@
 npm install ocs-calculators
 ```
 
-> ⚠️ **请使用 ≥ 0.2.1**。`0.2.0` 曾因子路径 exports 键写错（缺少 `./` 前缀）导致 `import 'ocs-calculators'` 报 `ERR_INVALID_PACKAGE_CONFIG`，已由 `0.2.1` 修复。裸 `npm install ocs-calculators` 会取 latest（0.2.1），无需特殊处理；若你的依赖显式锁了 `@0.2.0`，请升级到 `@0.2.1`。
+要求 Node ≥ 18。
+
+> ⚠️ **请使用 ≥ 0.2.1**。`0.2.0` 曾因子路径 exports 键写错（缺少 `./` 前缀）导致子路径导入抛 `ERR_PACKAGE_PATH_NOT_EXPORTED`，已由 `0.2.1` 修复。裸 `npm install ocs-calculators` 会取 latest（0.3.0），无需特殊处理；只有依赖显式锁了 `@0.2.0` 时才需要升级。完整版本历史见 [CHANGELOG.md](./CHANGELOG.md)。
 
 ## 快速开始
 
@@ -83,28 +88,28 @@ import { cantileverCut } from 'ocs-calculators/cantilever';
 
 对应 <https://www.itswe.com/Category:tools> 的 20 个在线计算器，全部已实现并逐项回归。
 
-| 状态 | 计算器 | 模块 | 在线地址 |
+| 计算器 | 模块 | 计算内容 | 在线地址 |
 |---|---|---|---|
-| ✅ 已实现 | 张力-温度安装曲线 | `tension` | [/calculator/tension/](https://www.itswe.com/calculator/tension/) |
-| ✅ 已实现 | 弓网接触力评价 | `force` | [/calculator/force/](https://www.itswe.com/calculator/force/) |
-| ✅ 已实现 | 载流量与热稳定 | `ampacity` | [/calculator/ampacity/](https://www.itswe.com/calculator/ampacity/) |
-| ✅ 已实现 | 吊弦长度计算 | `dropper` | [/calculator/dropper/](https://www.itswe.com/calculator/dropper/) |
-| ✅ 已实现 | 风偏限界校验 | `wind` | [/calculator/wind/](https://www.itswe.com/calculator/wind/) |
-| ✅ 已实现 | 接触线磨耗率 | `wear` | [/calculator/wear/](https://www.itswe.com/calculator/wear/) |
-| ✅ 已实现 | 接触线参数速查 | `copper` | [/calculator/copper/](https://www.itswe.com/calculator/copper/) |
-| ✅ 已实现 | 补偿行程 | `stroke` | [/calculator/stroke/](https://www.itswe.com/calculator/stroke/) |
-| ✅ 已实现 | 波速利用率 | `wavespeed` | [/calculator/wavespeed/](https://www.itswe.com/calculator/wavespeed/) |
-| ✅ 已实现 | 电压降校核 | `voltage-drop` | [/calculator/voltage-drop/](https://www.itswe.com/calculator/voltage-drop/) |
-| ✅ 已实现 | 曲线拉出值校核 | `curve-stagger` | [/calculator/curve-stagger/](https://www.itswe.com/calculator/curve-stagger/) |
-| ✅ 已实现 | 覆冰荷载校核 | `icing` | [/calculator/icing/](https://www.itswe.com/calculator/icing/) |
-| ✅ 已实现 | 弛度速算 | `sag` | [/calculator/sag/](https://www.itswe.com/calculator/sag/) |
-| ✅ 已实现 | b 值（坠砣高度）安装曲线 | `bvalue` | [/calculator/bvalue/](https://www.itswe.com/calculator/bvalue/) |
-| ✅ 已实现 | 绝缘子爬电距离选型校核 | `creepage` | [/calculator/creepage/](https://www.itswe.com/calculator/creepage/) |
-| ✅ 已实现 | 锚段长度张力差校核 | `anchor-length` | [/calculator/anchor-length/](https://www.itswe.com/calculator/anchor-length/) |
-| ✅ 已实现 | 定位器坡度校核 | `steady-arm` | [/calculator/steady-arm/](https://www.itswe.com/calculator/steady-arm/) |
-| ✅ 已实现 | 软横跨负载计算 | `cross-span` | [/calculator/cross-span/](https://www.itswe.com/calculator/cross-span/) |
-| ✅ 已实现 | 支柱容量选型校核 | `pole-capacity` | [/calculator/pole-capacity/](https://www.itswe.com/calculator/pole-capacity/) |
-| ✅ 已实现 | 腕臂预配（勾股下料） | `cantilever` | [/calculator/cantilever/](https://www.itswe.com/calculator/cantilever/) |
+| 张力-温度安装曲线 | `tension` | 状态方程求任意温度下的张力与弛度 | [/calculator/tension/](https://www.itswe.com/calculator/tension/) |
+| 弓网接触力评价 | `force` | EN 50367 统计评价 F'max/F'min 与参考目标力 | [/calculator/force/](https://www.itswe.com/calculator/force/) |
+| 载流量与热稳定 | `ampacity` | 环境温度载流量修正与短路热稳定最小截面 | [/calculator/ampacity/](https://www.itswe.com/calculator/ampacity/) |
+| 吊弦长度计算 | `dropper` | 简单/弹性链形悬挂逐点吊弦长度 | [/calculator/dropper/](https://www.itswe.com/calculator/dropper/) |
+| 风偏限界校验 | `wind` | 跨中风偏移与限界判据 | [/calculator/wind/](https://www.itswe.com/calculator/wind/) |
+| 接触线磨耗率 | `wear` | 按残截面/残径求磨耗率与更换判定 | [/calculator/wear/](https://www.itswe.com/calculator/wear/) |
+| 接触线参数速查 | `copper` | 6 型号单位重/电阻/载流量速查 | [/calculator/copper/](https://www.itswe.com/calculator/copper/) |
+| 补偿行程 | `stroke` | 温度伸缩量与补偿行程（1:2~1:4 传动比） | [/calculator/stroke/](https://www.itswe.com/calculator/stroke/) |
+| 波速利用率 | `wavespeed` | 波速、利用率 β 与共振车速 | [/calculator/wavespeed/](https://www.itswe.com/calculator/wavespeed/) |
+| 电压降校核 | `voltage-drop` | 馈线压降与末端电压 | [/calculator/voltage-drop/](https://www.itswe.com/calculator/voltage-drop/) |
+| 曲线拉出值校核 | `curve-stagger` | 曲线处拉出值与风偏合成 | [/calculator/curve-stagger/](https://www.itswe.com/calculator/curve-stagger/) |
+| 覆冰荷载校核 | `icing` | 冰筒模型覆冰荷载与弛度增幅 | [/calculator/icing/](https://www.itswe.com/calculator/icing/) |
+| 弛度速算 | `sag` | 由张力/跨距/单位重速算弛度，或反求最大跨距 | [/calculator/sag/](https://www.itswe.com/calculator/sag/) |
+| b 值（坠砣高度）安装曲线 | `bvalue` | 坠砣高度随温度变化曲线与 b_min 校核 | [/calculator/bvalue/](https://www.itswe.com/calculator/bvalue/) |
+| 绝缘子爬电距离选型校核 | `creepage` | 污区爬电比距 → 所需爬电距离判定 | [/calculator/creepage/](https://www.itswe.com/calculator/creepage/) |
+| 锚段长度张力差校核 | `anchor-length` | 曲线/直线支张力差与锚段长度判据 | [/calculator/anchor-length/](https://www.itswe.com/calculator/anchor-length/) |
+| 定位器坡度校核 | `steady-arm` | 定位器坡度多分量合成与限值判定 | [/calculator/steady-arm/](https://www.itswe.com/calculator/steady-arm/) |
+| 软横跨负载计算 | `cross-span` | 软横跨负载分力与横向承力索张力 | [/calculator/cross-span/](https://www.itswe.com/calculator/cross-span/) |
+| 支柱容量选型校核 | `pole-capacity` | 支柱检验弯矩与容量选型 | [/calculator/pole-capacity/](https://www.itswe.com/calculator/pole-capacity/) |
+| 腕臂预配（勾股下料） | `cantilever` | 腕臂各段下料长度与安装裕度 | [/calculator/cantilever/](https://www.itswe.com/calculator/cantilever/) |
 
 原 12 个模块的公式与默认参数取自站点 `/calculator/assets/calc-core.js` 源码；
 新增的 8 个模块（sag/bvalue/creepage/anchor-length/steady-arm/cross-span/pole-capacity/cantilever）为站点**内联引擎计算器**（引擎直嵌页面 HTML，不经 calc-core），本仓库按其 online 页面公式提炼，单元测试期望值由公式独立算出，未从服务器渲染结果反推。
@@ -142,9 +147,10 @@ console.log(tensionMeta.disclaimer);  // 免责声明
 - 新增 8 个模块（`sag`/`bvalue`/`creepage`/`anchor-length`/`steady-arm`/`cross-span`/`pole-capacity`/`cantilever`）为站点**内联引擎计算器**（引擎直嵌页面 HTML，不经 calc-core），以其 online 页面公式为基准；
 - 站点侧公式变更时，本仓库同步更新并补充/修订对应测试；
 - 本仓库的公式变更同样会回流站点，两边的计算结果保持一致；
-- `meta.ts` 中的参考依据（标准号 + 年份）随两侧更新同步修订。
+- `meta.ts` 中的参考依据（标准号 + 年份）随两侧更新同步修订；
+- 库侧输入域守卫与站点页面的有效输入域（`data-min`/`data-max`）对齐：越界输入在库内抛 `RangeError`（站点页面另受表单控件约束，不影响在线使用）。
 
-当前同步状态：20 个模块与站点一致（2026-09-14 校验，212 项测试全绿）。
+当前同步状态：20 个模块与站点一致（2026-09-15 校验，218 项测试全绿）。
 
 ## ⚠️ 免责声明
 
@@ -198,7 +204,7 @@ src/<模块名>/
 
 ## 相关项目
 
-- ocs-wiki-content — 504 条词条快照与结构化数据（规划中，仓库未建，建仓后再挂链接）
+- ocs-wiki-content — 词条快照与结构化数据（规划中，仓库未建，建仓后再挂链接）
 - [itswe](https://github.com/showhoo/itswe) — 站点介绍与建站文档
 
 ## 赞助
