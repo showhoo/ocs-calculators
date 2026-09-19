@@ -2,7 +2,7 @@
 
 **Engineering calculators for railway overhead contact systems (catenary) — open formulas, zero dependencies, embeddable in your own projects.**
 
-**20 modules · 218 unit tests · zero dependencies · pure TypeScript** (Node ≥ 18)
+**20 modules · 222 unit tests · zero dependencies · pure TypeScript** (Node ≥ 18)
 
 🔗 Try online: <https://www.itswe.com/Category:tools>
 📖 Companion wiki: <https://www.itswe.com> (670+ pages of catenary engineering content, in Chinese)
@@ -52,7 +52,7 @@ Requires Node ≥ 18.
 import { tensionCurve } from 'ocs-calculators';
 
 // Tension-temperature installation curve.
-// CTHM-120 contact wire, equivalent span 55 m, reference 20 kN @ -20 °C.
+// CTMH-120 contact wire, equivalent span 55 m, reference 20 kN @ -20 °C.
 const curve = tensionCurve(
   {
     baseTensionKN: 20,
@@ -177,12 +177,17 @@ This repository is the formula/algorithm layer of the online calculators at
   online pages are additionally constrained by their form controls).
 
 Current sync status: all 20 modules verified against the site
-(2026-09-15, 218 tests green).
+(2026-09-19, 222 tests green).
+Known exception: the `copper` ampacity field still follows the TB/T 2809-2017
+table 5 caliber in this library, while the site switched to the 2026 table 5
+on 2026-09-19 (sync pending in a later batch); the `copper` unit-weight column
+has been corrected here per the 2017 table 3, while the site's `calc-core.js`
+still carries the old values (flow-back pending in a later batch).
 
 ## Wire self-weight convention (confirmed)
 
 Linear density is taken from the standards' "reference unit mass" table, not
-derived from the nominal cross-section. For CTHM-120 the standard lists
+derived from the nominal cross-section. For CTMH-120 the standard lists
 `nominal 120 mm² | calculated 121 mm² | reference unit mass 1082 kg/km`, with
 a note that the mass is computed at 8.94 g/cm³ — a density that pairs with the
 **calculated** section (which includes dimensional tolerances), not the

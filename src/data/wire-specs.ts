@@ -110,7 +110,9 @@ export const WIRE_PRESETS: readonly WireSpec[] = [
     nameEn: 'CTAH-120 (CuAg 120 mm²)',
     crossSectionMM2: 120,
     calculatedSectionMM2: 121,
-    elasticModulusGPa: 120,
+    // 铜银合金 E=117 GPa，对齐站点 /calculator/tension/ 预设（2026-09-19 审计更正，
+    // 旧值 120 误沿用铜镁档）
+    elasticModulusGPa: 117,
     expansionPerDegC: COPPER_ALLOY_ALPHA_PER_DEG_C,
     linearMassKgPerM: unitWeightToKgPerM(STANDARD_UNIT_WEIGHT_KG_PER_KM.ctha120),
   },

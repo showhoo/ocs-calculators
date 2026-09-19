@@ -9,6 +9,14 @@ import { crossSpanAnalyze, type CrossSpanNodeInput } from './index';
  *   f   = [1.667, 2.667, 3, 2.667, 1.667]
  *   b_i = [5.1, 5.011, 5.011, 5.1]；端段 5.278 + 5.278；Σb = 30.778
  *   H   = M(l₁)/f_max = 578.06 kg；H' = 963.44 kg
+ *
+ * 布设口径（2026-09-19 修订）：节点对称布设 x₁=(L−(N−1)a)/2、x_i=x₁+(i−1)a，
+ * 约束 L>(N−1)a，与站点页面内联实现逐行对齐。本例 L=30、N=5、a=5 时
+ * x₁=(30−20)/2=5，对称布设与旧 npm 口径 x=a·(i+1) 数值恰好重合，
+ * 上述期望值在两种口径下相同，故保留。
+ * 旧 npm 布设（x=a·(i+1)、约束 N·a<L）系 0.2.0 新增模块时「期望值由公式独立
+ * 算出」的产物，与站点不一致；依 README「与站点实现的同步政策」（新增 8 模块
+ * 以站点 online 页面公式为基准）改写为站点模型，旧口径测试已随本修订废弃。
  */
 const DEFAULT: CrossSpanNodeInput = {
   nodeCount: 5,
@@ -31,7 +39,7 @@ describe('cross-span - 默认示例', () => {
     expect(r.totalLoadKg).toBeCloseTo(385.375, 12);
   });
 
-  it('节点位置 x_i = a·(i+1)，从 a 到末节点', () => {
+  it('节点对称布设：x₁=(L−(N−1)a)/2，x_i=x₁+(i−1)a（本例与旧口径重合）', () => {
     const r = crossSpanAnalyze(DEFAULT);
     expect(r.nodeX).toEqual([5, 10, 15, 20, 25]);
   });
@@ -67,6 +75,64 @@ describe('cross-span - 默认示例', () => {
     const r = crossSpanAnalyze(DEFAULT);
     expect(r.horizontalForceKg).toBeCloseTo(578.06, 2);
     expect(r.horizontalForceSimpleKg).toBeCloseTo(963.44, 2);
+  });
+});
+
+/**
+ * 审计回归算例（2026-09-19 第 1 波审计定案，锁定站点对称布设行为）：
+ *   N=5、a=5、L=60、l₁=30、f_max=6、J=65、q₀=0.615、n=2、g_c=0.615、P=50
+ *
+ * 布设：spanNeed=(5−1)×5=20 < 60；x₁=(60−20)/2=20 → x = 20/25/30/35/40
+ * 负载：Q = 65 + 2·0.615·5 + 50 + 0.615·5 = 124.225 kg；ΣQ = 621.125 kg
+ * 弛度：f = 6·(1−((x−30)/30)²) = [5.3333, 5.8333, 6, 5.8333, 5.3333]
+ * 张力：R_l = 621.125×(60−30)/60 = 310.5625；
+ *       M(l₁) = 310.5625×30 − 124.225×(30−20) − 124.225×(30−25) = 7453.5
+ *       H = 7453.5/6 = 1242.25 kg（与审计给定值一致；按站点 index.html 内联
+ *       实现逐行复算相符，无需容差折让）；简化式 H′ = 621.125×30/12 = 1552.8125 kg
+ * 索长：b_i = [5.025, 5.002778, 5.002778, 5.025]；端段 20.711111×2；Σb = 61.477778
+ */
+describe('cross-span - 审计回归（站点对称布设 N=5 L=60）', () => {
+  const AUDIT: CrossSpanNodeInput = {
+    nodeCount: 5,
+    spacingM: 5,
+    spanTotalM: 60,
+    lowPointFromLeftM: 30,
+    maxSagM: 6,
+    nodeLoadKg: 65,
+    suspensionWeightKgPerM: 0.615,
+    suspensionGroups: 2,
+    cableWeightKgPerM: 0.615,
+    insulatorDistributedKg: 50,
+  };
+
+  it('节点位置 x = 20/25/30/35/40', () => {
+    const r = crossSpanAnalyze(AUDIT);
+    expect(r.nodeX).toEqual([20, 25, 30, 35, 40]);
+  });
+
+  it('节点负载 Q = 124.225 kg，ΣQ = 621.125 kg', () => {
+    const r = crossSpanAnalyze(AUDIT);
+    for (const q of r.nodeQ) expect(q).toBeCloseTo(124.225, 12);
+    expect(r.totalLoadKg).toBeCloseTo(621.125, 12);
+  });
+
+  it('水平张力 H = 1242.25 kg（力矩平衡精确式）', () => {
+    const r = crossSpanAnalyze(AUDIT);
+    expect(r.horizontalForceKg).toBeCloseTo(1242.25, 9);
+    expect(r.horizontalForceSimpleKg).toBeCloseTo(1552.8125, 9);
+  });
+
+  it('分段索长与总索长', () => {
+    const r = crossSpanAnalyze(AUDIT);
+    const seg = [5.025, 5.002778, 5.002778, 5.025];
+    r.segmentLength.forEach((b, i) => {
+      const e = seg[i];
+      if (e === undefined) throw new Error('缺少期望分段索长');
+      expect(b).toBeCloseTo(e, 6);
+    });
+    expect(r.endLeftM).toBeCloseTo(20.711111, 6);
+    expect(r.endRightM).toBeCloseTo(20.711111, 6);
+    expect(r.totalLengthM).toBeCloseTo(61.477778, 6);
   });
 });
 
@@ -106,10 +172,10 @@ describe('cross-span - 数值性质', () => {
     expect(heavier.horizontalForceKg).toBeGreaterThan(base.horizontalForceKg);
   });
 
-  it('节点数增加且间距不变时节点数成正比', () => {
+  it('节点数变化时按对称布设重排（N=4：x₁=(30−15)/2=7.5）', () => {
     const r = crossSpanAnalyze({ ...DEFAULT, nodeCount: 4 });
     expect(r.nodeX).toHaveLength(4);
-    expect(r.nodeX).toEqual([5, 10, 15, 20]);
+    expect(r.nodeX).toEqual([7.5, 12.5, 17.5, 22.5]);
     expect(r.segmentLength).toHaveLength(3);
   });
 
@@ -144,8 +210,14 @@ describe('cross-span - 输入校验', () => {
     );
   });
 
-  it('末节点超出跨距时抛错', () => {
+  it('L ≤ (N−1)·a 时抛错（站点口径：L 应大于 (N−1)×a）', () => {
+    // N=5、a=5 → (N−1)·a=20：L=20 恰好等于布设所需长度，抛错
+    expect(() => crossSpanAnalyze({ ...DEFAULT, spanTotalM: 20 })).toThrow(RangeError);
+    // N=8、a=5 → 35 > L=30，同样抛错
     expect(() => crossSpanAnalyze({ ...DEFAULT, nodeCount: 8 })).toThrow(RangeError);
+    // 站点对称布设放宽后 L=21 即可容纳（旧口径 N·a=25 < 21 不成立，会误抛）
+    const r = crossSpanAnalyze({ ...DEFAULT, spanTotalM: 21 });
+    expect(r.nodeX).toEqual([0.5, 5.5, 10.5, 15.5, 20.5]);
   });
 
   it('直线等布置下两支柱端索长对称', () => {

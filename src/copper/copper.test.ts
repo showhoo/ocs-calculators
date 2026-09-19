@@ -8,11 +8,14 @@ import {
 
 /**
  * 站点 https://www.itswe.com/calculator/copper/ 已发布的输出（CTMH-120）：
- *   单位重量 1082 kg/km，总重量 1082 kg，r₂₀ = 0.2211 Ω/km，r_T = 0.2211 Ω/km
+ *   单位重量 1076 kg/km，总重量 1076 kg，r₂₀ = 0.2211 Ω/km，r_T = 0.2211 Ω/km
  *
  * 参数反推：r_T = r₂₀ → T = 20 ℃；总重量 = 单位重量 → l = 1 km。
  *
- * 本表已与站点 `/calculator/assets/calc-core.js` 的 COPPER_TABLE 逐项比对一致。
+ * 本表已与站点 `/calculator/assets/calc-core.js` 的 COPPER_TABLE 逐项比对一致
+ * （2026-08-31 复核口径）。2026-09-19 例外：unitWeight 六行已按 TB/T 2809-2017
+ * 表3 参考单位质量更正（CTMH-120 1082→1076 等，见本模块 index.ts 头注），
+ * 站点 COPPER_TABLE 该列暂仍为旧值，站点侧同步待另批；r₂₀/载流量列仍与站点一致。
  *
  * 历史注记（真实根因，2026-08-31 由站点维护者定位并修复）：
  * 站点渲染输出曾显示"载流量 43/56 A"，是**显示层 fmt() 的真实 bug**，不是笔误、
@@ -31,8 +34,9 @@ const SITE_INPUT = { model: 'CTMH-120' as const, lengthKm: 1, ambientTempDegC: 2
 describe('copper - 与站点已发布输出回归', () => {
   it('CTMH-120 / 1 km / 20℃', () => {
     const r = wireLookup(SITE_INPUT);
-    expect(r.unitWeightKgPerKm).toBe(1082);
-    expect(r.totalWeightKg).toBeCloseTo(1082, 9);
+    // unitWeight 已按 TB/T 2809-2017 表3 更正 1082→1076（2026-09-19）
+    expect(r.unitWeightKgPerKm).toBe(1076);
+    expect(r.totalWeightKg).toBeCloseTo(1076, 9);
     expect(r.r20OhmPerKm).toBeCloseTo(0.2211, 9);
     expect(r.rTOhmPerKm).toBeCloseTo(0.2211, 9);
   });
@@ -108,7 +112,7 @@ describe('copper - 电阻温度修正', () => {
 
   it('全长电阻 = 单位电阻 × 长度', () => {
     const r = wireLookup({ ...SITE_INPUT, lengthKm: 2.5 });
-    expect(r.totalWeightKg).toBeCloseTo(1082 * 2.5, 9);
+    expect(r.totalWeightKg).toBeCloseTo(1076 * 2.5, 9);
     expect(r.totalResistanceOhm).toBeCloseTo(r.rTOhmPerKm * 2.5, 9);
   });
 

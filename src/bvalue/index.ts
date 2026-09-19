@@ -25,7 +25,7 @@ export interface BValueResult {
   readonly stretchMM: number;
   /** 坠砣侧行程变化 n·ΔL，mm */
   readonly strokeMM: number;
-  /** 坠砣总质量（W=T/n，m≈102·W，g 取 9.81 m/s²），kg */
+  /** 坠砣总质量 W = T·1000/(n·9.81)，kg（对齐站点 /calculator/bvalue/ 换算口径） */
   readonly weightKg: number | null;
 }
 
@@ -42,8 +42,8 @@ export function bValue(params: BValueInput): BValueResult {
   let weightKg: number | null = null;
   if (tensionKN !== undefined) {
     if (!(tensionKN > 0)) throw new RangeError('额定张力必须为正，收到 ' + tensionKN);
-    const WKN = tensionKN / ratio;
-    weightKg = WKN * 102; // 1 kN ≈ 102 kg（g=9.81）
+    // W = T·1000/(n·9.81)：kN→N 后按 g=9.81 m/s² 折算质量（站点页面同式）
+    weightKg = (tensionKN * 1000) / (ratio * 9.81);
   }
   return { bMM, stretchMM, strokeMM, weightKg };
 }

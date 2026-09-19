@@ -7,7 +7,7 @@ export const bvalueMeta: CalculatorMeta = {
   formula: [
     'b_x = b_min + n·α·L·(t_max − t_x)',
     '坠砣侧行程变化 n·ΔL，ΔL = α·L·(t_max − t_x)',
-    '坠砣侧张力 W = T/n，对应坠砣总质量 m ≈ 102·W kg',
+    '坠砣总质量 W = T·1000/(n·9.81) kg（T 为张力 kN，n 为传动比倍数；与站点换算口径一致）',
   ],
   references: [
     '限值口径：运行 ≥200 mm、偏差 ±100 mm（TB 10421-2018 第 5.22.3 条）',

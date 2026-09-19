@@ -4,7 +4,7 @@ export { crossSpanMeta } from './meta';
 export interface CrossSpanNodeInput {
   /** 股道悬挂节点数 N */
   readonly nodeCount: number;
-  /** 股道间距 a，m（节点近似均匀分布，起点距支柱 a） */
+  /** 股道间距 a，m（节点对称均匀布设，x₁=(L−(N−1)a)/2） */
   readonly spacingM: number;
   /** 横承索跨距 L，m */
   readonly spanTotalM: number;
@@ -50,6 +50,9 @@ export interface CrossSpanResult {
 
 /**
  * 软横跨负载计算（负载计算法，教材口径）。
+ *
+ * 节点对称布设（与站点 /calculator/cross-span/ 页面实现一致，2026-09-19 对齐）：
+ *   约束 L > (N−1)·a；x₁ = (L−(N−1)·a)/2，x_i = x₁+(i−1)·a
  *
  * 节点垂直负载（均匀间距简化）：
  *   Q_i = J + n·q₀·a + P + g_c·a
@@ -108,19 +111,20 @@ export function crossSpanAnalyze(input: CrossSpanNodeInput): CrossSpanResult {
     throw new RangeError(`绝缘子串分摊负载不能为负，收到 ${P} kg`);
   }
 
-  // 节点均匀分布：第 i 个节点距左支柱 x = a·(i+1)，须全部落在跨内
-  const lastX = a * nodeCount;
-  if (!(lastX < L)) {
+  // 节点对称布设（站点页面口径）：L > (N−1)·a，x₁ = (L−(N−1)·a)/2，x_i = x₁+(i−1)·a
+  const spanNeed = (nodeCount - 1) * a;
+  if (!(L > spanNeed)) {
     throw new RangeError(
-      `末节点位置 ${lastX} m 超出跨距 ${L} m，请减小节点数或股道间距`,
+      `跨距应大于 (N−1)×a = ${spanNeed} m，收到 L = ${L} m，请减小节点数或股道间距`,
     );
   }
 
   const Q = J + n * q0 * a + P + gc * a;
 
   const nodeX: number[] = [];
+  const x1 = (L - spanNeed) / 2;
   for (let i = 0; i < nodeCount; i++) {
-    nodeX.push(a * (i + 1));
+    nodeX.push(x1 + i * a);
   }
 
   const nodeQ: number[] = nodeX.map(() => Q);

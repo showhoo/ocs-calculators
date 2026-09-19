@@ -2,7 +2,7 @@
 
 **铁路接触网（OCS）工程计算工具 —— 公式公开、零依赖、可直接在你的项目里引用。**
 
-**20 个模块 · 218 项单元测试 · 零依赖 · 纯函数 TypeScript**（Node ≥ 18）
+**20 个模块 · 222 项单元测试 · 零依赖 · 纯函数 TypeScript**（Node ≥ 18）
 
 🔗 在线使用：<https://www.itswe.com/Category:tools>
 📖 配套百科：<https://www.itswe.com>（670+ 页接触网专业内容）
@@ -41,7 +41,7 @@ npm install ocs-calculators
 ```ts
 import { tensionCurve } from 'ocs-calculators';
 
-// 张力-温度安装曲线：CTHM-120，当量跨距 55 m，基准 20 kN @ -20 ℃
+// 张力-温度安装曲线：CTMH-120，当量跨距 55 m，基准 20 kN @ -20 ℃
 const curve = tensionCurve(
   {
     baseTensionKN: 20,
@@ -150,7 +150,10 @@ console.log(tensionMeta.disclaimer);  // 免责声明
 - `meta.ts` 中的参考依据（标准号 + 年份）随两侧更新同步修订；
 - 库侧输入域守卫与站点页面的有效输入域（`data-min`/`data-max`）对齐：越界输入在库内抛 `RangeError`（站点页面另受表单控件约束，不影响在线使用）。
 
-当前同步状态：20 个模块与站点一致（2026-09-15 校验，218 项测试全绿）。
+当前同步状态：20 个模块与站点一致（2026-09-19 校验，222 项测试全绿）。
+已知例外：`copper` 载流量字段 npm 仍为 TB/T 2809-2017 表5 口径，站点已于
+2026-09-19 切换 2026 版表5（同步待另批）；`copper` 单位重量列 npm 已按
+2017 表3 更正，站点 `calc-core.js` 该列暂仍为旧值（回流待另批）。
 
 ## ⚠️ 免责声明
 
@@ -170,7 +173,7 @@ console.log(tensionMeta.disclaimer);  // 免责声明
 （把尺寸公差计入后的截面）用的，不是配标称截面：
 `121 × 8.94 × 1e-3 = 1.08174 ≈ 1.082 kg/m`。
 
-因此 CTHM-120 自重 `g = 1.082 × 9.81 = 10.61442 N/m`，
+因此 CTMH-120 自重 `g = 1.082 × 9.81 = 10.61442 N/m`，
 与站点 `/calculator/tension/` 的预设 `rho=1.082`、表单默认值 `10.61`、
 以及本库 `TB2809_WIRE_PARAMS` 的 `1082` 三处同源。
 

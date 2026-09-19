@@ -40,6 +40,12 @@ export interface WireParamEntry {
  * 已于 R38 之后修复。若再遇渲染值与本表不符，先确认是否为显示层问题：
  * 本表与服务端数据源始终一致。
  *
+ * 单位重量口径（2026-09-19 更正）：六行 unitWeightKgPerKm 已按 TB/T 2809-2017
+ * 表3 参考单位质量逐项更正——CTMH-120 1082→1076、CTMH-150 1350→1342、
+ * CTAH-120 1070→1076、CTAH-150 1330→1342、CTS-120 1080→1079、CTS-150 1345→1347
+ * （旧值混入了 TB/T 2810 纯铜表 1082 及近似凑整值）。站点 `calc-core.js` 的
+ * COPPER_TABLE 当前仍为旧值，站点侧同步待另批；r₂₀/载流量两列不受本更正影响。
+ *
  * ⚠️ 注意型号口径：CTMH / CTAH / CTS 是站点计算器的型号代码，与标准中的
  * CTMH / CTA / CTS 并非同名对应。`note` 字段说明各行实际取自标准的哪一行，
  * 交叉引用 TB/T 2809-2017 时请以 note 为准。
@@ -49,42 +55,42 @@ export interface WireParamEntry {
  */
 export const TB2809_WIRE_PARAMS: Record<CopperWireModel, WireParamEntry> = {
   'CTMH-120': {
-    unitWeightKgPerKm: 1082,
+    unitWeightKgPerKm: 1076,
     r20OhmPerKm: 0.2211,
     ampacityIndoor150A: 430,
     ampacityOutdoor150A: 560,
     note: '取标准 CTMH 行（高强度铜镁合金），r20 = ρ 上限 0.02653 ÷ 120（2026-09-19 更正：旧值 0.2113 误用 0.02535 档）',
   },
   'CTMH-150': {
-    unitWeightKgPerKm: 1350,
+    unitWeightKgPerKm: 1342,
     r20OhmPerKm: 0.1769,
     ampacityIndoor150A: 500,
     ampacityOutdoor150A: 650,
     note: '取标准 CTMH 行（高强度铜镁合金），r20 = 0.02653 ÷ 150（2026-09-19 更正：旧值 0.169 误用 0.02535 档）',
   },
   'CTAH-120': {
-    unitWeightKgPerKm: 1070,
+    unitWeightKgPerKm: 1076,
     r20OhmPerKm: 0.1481,
     ampacityIndoor150A: 515,
     ampacityOutdoor150A: 680,
     note: '取标准 CTA 行（铜银合金），ρ ≤ 0.01777',
   },
   'CTAH-150': {
-    unitWeightKgPerKm: 1330,
+    unitWeightKgPerKm: 1342,
     r20OhmPerKm: 0.1185,
     ampacityIndoor150A: 620,
     ampacityOutdoor150A: 785,
     note: '取标准 CTA 行（铜银合金）',
   },
   'CTS-120': {
-    unitWeightKgPerKm: 1080,
+    unitWeightKgPerKm: 1079,
     r20OhmPerKm: 0.1545,
     ampacityIndoor150A: 515,
     ampacityOutdoor150A: 680,
     note: '取标准 CTS 行（铜锡合金），r20 = ρ 上限 0.01854 ÷ 120（2026-09-19 更正：旧值 0.1916 误用 0.02299 档），载流量按 CTS 行取值',
   },
   'CTS-150': {
-    unitWeightKgPerKm: 1345,
+    unitWeightKgPerKm: 1347,
     r20OhmPerKm: 0.1236,
     ampacityIndoor150A: 620,
     ampacityOutdoor150A: 790,
