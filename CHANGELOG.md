@@ -3,7 +3,11 @@
 本文件格式遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 版本号遵循[语义化版本](https://semver.org/lang/zh-CN/)。
 
-## [Unreleased]
+## [0.3.1] - 2026-09-20
+
+### 适配说明
+
+本版为适配 **TB/T 2809-2026《电气化铁路接触网 铜合金接触线》**（2026-09-01 实施）的数据与计算口径修正版本，与站点 itswe.com 全量对齐。
 
 ### 修复
 
