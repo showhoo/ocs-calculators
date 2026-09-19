@@ -8,17 +8,17 @@ import { resistanceAtTempOhmPerKm } from '../common/resistance';
 
 /**
  * 期望值由站点 `/calculator/assets/calc-core.js` 的 voltageDrop() 源码公式
- * 按页面默认输入（U₀=27500 V、I=600 A、r₂₀=0.2113 Ω/km、L=25 km、T=40 ℃）算出。
+ * 按页面默认输入（U₀=27500 V、I=600 A、r₂₀=0.2211 Ω/km、L=25 km、T=40 ℃）算出。
  *
- *   r_T  = 0.2113·[1+0.00393·20] = 0.22790818 Ω/km
- *   ΔU   = 600 × 0.22790818 × 25 = 3418.6227 V
- *   Uend = 27500 − 3418.6227     = 24081.3773 V
- *   压降率                        = 12.43135527272727 %
+ *   r_T  = 0.2211·[1+0.00393·20] = 0.23847846 Ω/km
+ *   ΔU   = 600 × 0.23847846 × 25 = 3577.1769 V
+ *   Uend = 27500 − 3577.1769     = 23922.8231 V
+ *   压降率                        = 13.007916 %
  */
 const SITE_INPUT: VoltageDropInput = {
   busVoltageV: 27500,
   currentA: 600,
-  r20OhmPerKm: 0.2113,
+  r20OhmPerKm: 0.2211,
   feederLengthKm: 25,
   tempDegC: 40,
 };
@@ -26,10 +26,10 @@ const SITE_INPUT: VoltageDropInput = {
 describe('voltage-drop - 与站点源码公式回归', () => {
   it('r_T、ΔU、末端电压与压降率', () => {
     const r = voltageDropCheck(SITE_INPUT);
-    expect(r.rTOhmPerKm).toBeCloseTo(0.22790818, 10);
-    expect(r.voltageDropV).toBeCloseTo(3418.6227, 6);
-    expect(r.endVoltageV).toBeCloseTo(24081.3773, 6);
-    expect(r.dropPercent).toBeCloseTo(12.43135527272727, 9);
+    expect(r.rTOhmPerKm).toBeCloseTo(0.23847846, 10);
+    expect(r.voltageDropV).toBeCloseTo(3577.1769, 6);
+    expect(r.endVoltageV).toBeCloseTo(23922.8231, 6);
+    expect(r.dropPercent).toBeCloseTo(13.007916, 9);
   });
 
   it('末端电压满足 25kV 体系下限', () => {
@@ -41,9 +41,9 @@ describe('voltage-drop - 与站点源码公式回归', () => {
 
 describe('voltage-drop - 公式性质', () => {
   it('r_T = r₂₀·[1+α(T−20)]', () => {
-    expect(resistanceAtTempOhmPerKm(0.2113, 40)).toBeCloseTo(0.22790818, 10);
+    expect(resistanceAtTempOhmPerKm(0.2211, 40)).toBeCloseTo(0.23847846, 10);
     // T = 20℃ 不修正
-    expect(resistanceAtTempOhmPerKm(0.2113, 20)).toBeCloseTo(0.2113, 12);
+    expect(resistanceAtTempOhmPerKm(0.2211, 20)).toBeCloseTo(0.2211, 12);
   });
 
   it('ΔU 与电流、长度均成正比', () => {

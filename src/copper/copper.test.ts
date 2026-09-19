@@ -8,7 +8,7 @@ import {
 
 /**
  * 站点 https://www.itswe.com/calculator/copper/ 已发布的输出（CTMH-120）：
- *   单位重量 1082 kg/km，总重量 1082 kg，r₂₀ = 0.2113 Ω/km，r_T = 0.2113 Ω/km
+ *   单位重量 1082 kg/km，总重量 1082 kg，r₂₀ = 0.2211 Ω/km，r_T = 0.2211 Ω/km
  *
  * 参数反推：r_T = r₂₀ → T = 20 ℃；总重量 = 单位重量 → l = 1 km。
  *
@@ -33,11 +33,11 @@ describe('copper - 与站点已发布输出回归', () => {
     const r = wireLookup(SITE_INPUT);
     expect(r.unitWeightKgPerKm).toBe(1082);
     expect(r.totalWeightKg).toBeCloseTo(1082, 9);
-    expect(r.r20OhmPerKm).toBeCloseTo(0.2113, 9);
-    expect(r.rTOhmPerKm).toBeCloseTo(0.2113, 9);
+    expect(r.r20OhmPerKm).toBeCloseTo(0.2211, 9);
+    expect(r.rTOhmPerKm).toBeCloseTo(0.2211, 9);
   });
 
-  it('载流量 430/560 A，与服务端 COPPER_TABLE 一致', () => {
+  it('载流量 430/560 A（2017 口径；站点已切 2026 表5，npm 同步待另批）', () => {
     const r = wireLookup(SITE_INPUT);
     expect(r.ampacityIndoor150A).toBe(430);
     expect(r.ampacityOutdoor150A).toBe(560);
@@ -89,16 +89,16 @@ describe('copper - 参数表完整性', () => {
 
 describe('copper - 电阻温度修正', () => {
   it('r_T = r₂₀·[1 + α(T−20)]', () => {
-    // 手算：0.2113 × (1 + 0.00393 × 20) = 0.2113 × 1.0786 = 0.2279082
-    expect(resistanceAtTempOhmPerKm(0.2113, 40)).toBeCloseTo(0.2279082, 6);
+    // 手算：0.2211 × (1 + 0.00393 × 20) = 0.2211 × 1.0786 = 0.23847846
+    expect(resistanceAtTempOhmPerKm(0.2211, 40)).toBeCloseTo(0.23847846, 6);
   });
 
   it('T = 20℃ 时不修正', () => {
-    expect(resistanceAtTempOhmPerKm(0.2113, 20)).toBeCloseTo(0.2113, 12);
+    expect(resistanceAtTempOhmPerKm(0.2211, 20)).toBeCloseTo(0.2211, 12);
   });
 
   it('温度降低电阻下降', () => {
-    expect(resistanceAtTempOhmPerKm(0.2113, -20)).toBeLessThan(0.2113);
+    expect(resistanceAtTempOhmPerKm(0.2211, -20)).toBeLessThan(0.2211);
   });
 
   it('支持自定义温度系数', () => {

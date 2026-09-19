@@ -31,8 +31,10 @@ export interface WireParamEntry {
  *
  * 载流量为 150℃ 持续值（室内/室外双口径，标准表5）。
  *
- * 已与站点 `/calculator/assets/calc-core.js` 中的 COPPER_TABLE 逐项比对，
- * 6 个型号 × 4 项参数完全一致。
+ * r₂₀ 口径 = 各材质 20℃ 电阻率上限 ÷ 标称截面。2026-09-19 全表复核：
+ * 更正 CTMH-120/150（旧值误用 0.02535 档，应 0.02653）与
+ * CTS-120/150（旧值误用 0.02299 档，应 0.01854）四行错档值，
+ * 已随站点 `/calculator/assets/calc-core.js` 同批修正。
  *
  * 注：站点曾因显示层 `fmt()` 的尾零剥离正则把载流量渲染成 43/56（应为 430/560），
  * 已于 R38 之后修复。若再遇渲染值与本表不符，先确认是否为显示层问题：
@@ -41,21 +43,24 @@ export interface WireParamEntry {
  * ⚠️ 注意型号口径：CTMH / CTAH / CTS 是站点计算器的型号代码，与标准中的
  * CTMH / CTA / CTS 并非同名对应。`note` 字段说明各行实际取自标准的哪一行，
  * 交叉引用 TB/T 2809-2017 时请以 note 为准。
+ *
+ * ⚠️ 载流量字段仍为 2017 版表5 口径；站点已于 2026-09-19 切换 2026 版表5
+ * （室内值 442/524/509/593/511/590 等，含 2017 对照列），npm 侧同步待另批。
  */
 export const TB2809_WIRE_PARAMS: Record<CopperWireModel, WireParamEntry> = {
   'CTMH-120': {
     unitWeightKgPerKm: 1082,
-    r20OhmPerKm: 0.2113,
+    r20OhmPerKm: 0.2211,
     ampacityIndoor150A: 430,
     ampacityOutdoor150A: 560,
-    note: '取标准 CTMH 行（高强度铜镁合金），ρ 按标准上限 0.02535 计算',
+    note: '取标准 CTMH 行（高强度铜镁合金），r20 = ρ 上限 0.02653 ÷ 120（2026-09-19 更正：旧值 0.2113 误用 0.02535 档）',
   },
   'CTMH-150': {
     unitWeightKgPerKm: 1350,
-    r20OhmPerKm: 0.169,
+    r20OhmPerKm: 0.1769,
     ampacityIndoor150A: 500,
     ampacityOutdoor150A: 650,
-    note: '取标准 CTMH 行（高强度铜镁合金）',
+    note: '取标准 CTMH 行（高强度铜镁合金），r20 = 0.02653 ÷ 150（2026-09-19 更正：旧值 0.169 误用 0.02535 档）',
   },
   'CTAH-120': {
     unitWeightKgPerKm: 1070,
@@ -73,17 +78,17 @@ export const TB2809_WIRE_PARAMS: Record<CopperWireModel, WireParamEntry> = {
   },
   'CTS-120': {
     unitWeightKgPerKm: 1080,
-    r20OhmPerKm: 0.1916,
+    r20OhmPerKm: 0.1545,
     ampacityIndoor150A: 515,
     ampacityOutdoor150A: 680,
-    note: '取标准 CTS 行（铜锡合金），载流量按 CTS 行取值',
+    note: '取标准 CTS 行（铜锡合金），r20 = ρ 上限 0.01854 ÷ 120（2026-09-19 更正：旧值 0.1916 误用 0.02299 档），载流量按 CTS 行取值',
   },
   'CTS-150': {
     unitWeightKgPerKm: 1345,
-    r20OhmPerKm: 0.1533,
+    r20OhmPerKm: 0.1236,
     ampacityIndoor150A: 620,
     ampacityOutdoor150A: 790,
-    note: '取标准 CTS 行（铜锡合金），载流量按 CTS 行取值',
+    note: '取标准 CTS 行（铜锡合金），r20 = 0.01854 ÷ 150（2026-09-19 更正：旧值 0.1533 误用 0.02299 档），载流量按 CTS 行取值',
   },
 };
 
