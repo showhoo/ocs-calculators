@@ -63,7 +63,7 @@ jobs:
               GITEE_PATCH=$(curl -s -o /dev/null -w "%{http_code}" -X PATCH\
                 -H "Authorization: Bearer $GITEE_TOKEN"\
                 "https://gitee.com/api/v5/repos/${GITEE_USER}/${name}"\
-                --data-urlencode "description=${desc}")
+                --data-urlencode "description=${desc}" --data-urlencode "name=${name}")
               GITCODE_PATCH=$(curl -s -o /dev/null -w "%{http_code}" -X PATCH\
                 -H "PRIVATE-TOKEN: $GITCODE_TOKEN" -H "Content-Type: application/json"\
                 "https://gitcode.com/api/v5/repos/${GITCODE_USER}/${name}"\
