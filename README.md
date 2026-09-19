@@ -15,6 +15,9 @@
 ![license](https://img.shields.io/npm/l/ocs-calculators)
 ![dependencies](https://img.shields.io/badge/dependencies-0-brightgreen)
 
+> ⚠️ **v0.3.1 已弃用**：该版本 `STANDARD_UNIT_WEIGHT_KG_PER_KM` 含错值
+> （1082/1350/1070，TB/T 2810 口径混入），已在 **v0.3.2** 修正。请勿安装或使用 0.3.1。
+
 ![首屏截图](docs/screenshot.png)
 
 ---

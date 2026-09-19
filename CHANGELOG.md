@@ -3,7 +3,28 @@
 本文件格式遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 版本号遵循[语义化版本](https://semver.org/lang/zh-CN/)。
 
-## [0.3.1] - 2026-09-20
+## [0.3.2] - 2026-09-20
+
+### 修复
+
+- **`STANDARD_UNIT_WEIGHT_KG_PER_KM` 对齐（wire-specs）**：
+  `src/data/wire-specs.ts` 的 cthm120/cthm150/ctha120 三值由 TB/T 2810-2017
+  （纯铜）参考表 1082/1350/1070 更正为 TB/T 2809-2026 表3 实值 1076/1342/1076，
+  与 `TB2809_WIRE_PARAMS` 同源。连带 `tension`/`icing`/`wavespeed` 测试自重口径
+  夹具统一为 1.076/10.56（旧 1.082/10.61 的 2810 口径已废弃）。
+
+### 说明
+
+⚠️ **v0.3.1 含上述 `STANDARD_UNIT_WEIGHT_KG_PER_KM` 错值**（1082/1350/1070，
+影响 wire-specs 预设自重），已被本版取代——**请勿继续使用 0.3.1，请升级 0.3.2**。
+（0.3.1 的 copper 主参数表 `TB2809_WIRE_PARAMS` 为正确值，错值仅在 wire-specs 预设。）
+
+## [0.3.1] - 2026-09-20（已弃用，请升级 0.3.2）
+
+### ⚠️ 弃用警告
+
+本版含 `STANDARD_UNIT_WEIGHT_KG_PER_KM` 错值（1082/1350/1070，TB/T 2810 口径
+混入 wire-specs 预设），已在 **0.3.2** 修正。请直接安装 0.3.2。
 
 ### 适配说明
 
@@ -74,11 +95,6 @@
   CTMH-120 1082→**1076**、CTMH-150 1350→**1342**、CTAH-120 1070→**1076**、
   CTAH-150 1330→**1342**、CTS-120 1080→**1079**、CTS-150 1345→**1347**；
   测试期望与「150/120≈1.25 倍」派生断言跟随（1342/1076=1.247 仍近似成立）。
-- **`STANDARD_UNIT_WEIGHT_KG_PER_KM` 对齐（wire-specs，2026-09-20 补）**：
-  `src/data/wire-specs.ts` 的 cthm120/cthm150/ctha120 三值由 TB/T 2810-2017
-  （纯铜）参考表 1082/1350/1070 更正为 TB/T 2809-2026 表3 实值 1076/1342/1076，
-  与 `TB2809_WIRE_PARAMS` 同源。连带 `tension`/`icing`/`wavespeed` 测试自重口径
-  夹具统一为 1.076/10.56（旧 1.082/10.61 的 2810 口径已废弃）。
 - **坠砣重量换算统一（bvalue）**：`weightKg` 由 W=(T/n)×102 改为
   W=T·1000/(n·9.81) kg，对齐站点 `/calculator/bvalue/` 页面换算式；测试跟随。
 
