@@ -176,13 +176,11 @@ This repository is the formula/algorithm layer of the online calculators at
   (`data-min` / `data-max`): out-of-range input throws a `RangeError` (the
   online pages are additionally constrained by their form controls).
 
-Current sync status: all 20 modules verified against the site
-(2026-09-19, 222 tests green).
-Known exception: the `copper` ampacity field still follows the TB/T 2809-2017
-table 5 caliber in this library, while the site switched to the 2026 table 5
-on 2026-09-19 (sync pending in a later batch); the `copper` unit-weight column
-has been corrected here per the 2017 table 3, while the site's `calc-core.js`
-still carries the old values (flow-back pending in a later batch).
+Current sync status: fully aligned with the site as of 2026-09-19
+(including dual-caliber ampacity fields; 228 tests green) — the `copper`
+indoor ampacity main values follow TB/T 2809-2026 table 5, with
+`ampacityIndoor150A2017` keeping the 2017 table 5 counterparts, and the
+unit-weight column matches on both sides.
 
 ## Wire self-weight convention (confirmed)
 

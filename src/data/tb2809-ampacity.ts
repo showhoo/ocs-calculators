@@ -1,6 +1,9 @@
 /**
  * TB/T 2809-2017 表5 持续载流量参考值（A）。
  *
+ * ⚠️ 2017 版表5 历史参考（全 9 材质）；2026 版现行口径见 TB2809_WIRE_PARAMS
+ * 双字段（src/copper/index.ts：ampacityIndoor150A 主值 / ampacityIndoor150A2017 对照）。
+ *
  * 来源：itswe.com 标准规范库，据 TB/T 2809-2017 无水印全文扫描件逐格复核。
  *
  * 查表语义：

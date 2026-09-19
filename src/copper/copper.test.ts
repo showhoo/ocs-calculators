@@ -13,9 +13,12 @@ import {
  * 参数反推：r_T = r₂₀ → T = 20 ℃；总重量 = 单位重量 → l = 1 km。
  *
  * 本表已与站点 `/calculator/assets/calc-core.js` 的 COPPER_TABLE 逐项比对一致
- * （2026-08-31 复核口径）。2026-09-19 例外：unitWeight 六行已按 TB/T 2809-2017
- * 表3 参考单位质量更正（CTMH-120 1082→1076 等，见本模块 index.ts 头注），
- * 站点 COPPER_TABLE 已于 2026-09-19 同值更正（两侧一致）；r₂₀/载流量列亦与站点一致。
+ * （2026-08-31 复核口径）。2026-09-19 修复批更新：unitWeight 六行已按
+ * TB/T 2809-2017 表3 参考单位质量更正（CTMH-120 1082→1076 等，见本模块
+ * index.ts 头注）；载流量室内主值切换 TB/T 2809-2026 表5
+ * （442/524/509/593/511/590），`ampacityIndoor150A2017` 保留 2017 表5 同点位
+ * 对照值（430/500/515/620/515/620），室外值两版同值——站点已于同日同步，
+ * 两侧一致（含载流量双口径）。
  *
  * 历史注记（真实根因，2026-08-31 由站点维护者定位并修复）：
  * 站点渲染输出曾显示"载流量 43/56 A"，是**显示层 fmt() 的真实 bug**，不是笔误、
@@ -41,9 +44,13 @@ describe('copper - 与站点已发布输出回归', () => {
     expect(r.rTOhmPerKm).toBeCloseTo(0.2211, 9);
   });
 
-  it('载流量 430/560 A（2017 口径；站点已切 2026 表5，npm 同步待另批）', () => {
+  it('载流量双口径：2026 主值 442 A / 2017 对照 430 A（室外两版同值 560 A）', () => {
     const r = wireLookup(SITE_INPUT);
-    expect(r.ampacityIndoor150A).toBe(430);
+    // 主值 = TB/T 2809-2026 表5 室内值（2026-09-19 据正版文本核入）
+    expect(r.ampacityIndoor150A).toBe(442);
+    // 对照 = TB/T 2809-2017 表5 同点位值（既有线历史采购参照）
+    expect(r.ampacityIndoor150A2017).toBe(430);
+    // 室外值两版同值
     expect(r.ampacityOutdoor150A).toBe(560);
   });
 });
@@ -82,11 +89,23 @@ describe('copper - 参数表完整性', () => {
     expect(r120 * 120).toBeCloseTo(r150 * 150, 1);
   });
 
-  it('载流量与 TB/T 2809-2017 表5 150℃ 口径一致', () => {
-    // 铜银 120：室内 515、室外 680
-    expect(TB2809_WIRE_PARAMS['CTAH-120'].ampacityIndoor150A).toBe(515);
+  it('载流量双口径：主值=TB/T 2809-2026 表5，对照=TB/T 2809-2017 表5 同点位', () => {
+    // 六行室内主值（2026 表5）：CTMH-120/CTMH-150/CTAH-120/CTAH-150/CTS-120/CTS-150
+    expect(TB2809_WIRE_PARAMS['CTMH-120'].ampacityIndoor150A).toBe(442);
+    expect(TB2809_WIRE_PARAMS['CTMH-150'].ampacityIndoor150A).toBe(524);
+    expect(TB2809_WIRE_PARAMS['CTAH-120'].ampacityIndoor150A).toBe(509);
+    expect(TB2809_WIRE_PARAMS['CTAH-150'].ampacityIndoor150A).toBe(593);
+    expect(TB2809_WIRE_PARAMS['CTS-120'].ampacityIndoor150A).toBe(511);
+    expect(TB2809_WIRE_PARAMS['CTS-150'].ampacityIndoor150A).toBe(590);
+    // 六行室内对照（2017 表5 同点位值，既有线历史采购参照）
+    expect(TB2809_WIRE_PARAMS['CTMH-120'].ampacityIndoor150A2017).toBe(430);
+    expect(TB2809_WIRE_PARAMS['CTMH-150'].ampacityIndoor150A2017).toBe(500);
+    expect(TB2809_WIRE_PARAMS['CTAH-120'].ampacityIndoor150A2017).toBe(515);
+    expect(TB2809_WIRE_PARAMS['CTAH-150'].ampacityIndoor150A2017).toBe(620);
+    expect(TB2809_WIRE_PARAMS['CTS-120'].ampacityIndoor150A2017).toBe(515);
+    expect(TB2809_WIRE_PARAMS['CTS-150'].ampacityIndoor150A2017).toBe(620);
+    // 室外值两版同值（抽两点回归：铜银 120、铜锡 150）
     expect(TB2809_WIRE_PARAMS['CTAH-120'].ampacityOutdoor150A).toBe(680);
-    // 铜锡 150：室外 790
     expect(TB2809_WIRE_PARAMS['CTS-150'].ampacityOutdoor150A).toBe(790);
   });
 });
