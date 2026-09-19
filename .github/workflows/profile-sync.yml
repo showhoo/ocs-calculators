@@ -19,13 +19,12 @@ jobs:
           set -e
           BIO='思维接触网百科 itswe.com 站长｜开源接触网计算工具｜ITSWE-Nav 导航作者'
           BLOG='https://www.itswe.com'
-          printf '{"bio":"%s","blog":"%s"}' "$BIO" "$BLOG" > body.json
           echo "=== Gitee PATCH /user ==="
           curl -s -X PATCH "https://gitee.com/api/v5/user" -H "Authorization: Bearer $GITEE_TOKEN" --data-urlencode "bio=$BIO" --data-urlencode "blog=$BLOG" -o gitee_resp.json -w "http=%{http_code}" || true
-          head -c 300 gitee_resp.json; echo
-          echo "=== GitCode PATCH /user ==="
+          head -c 200 gitee_resp.json; echo
+          echo "=== GitCode PATCH /user (description/website 字段) ==="
+          printf '{"description":"%s","website":"%s"}' "$BIO" "$BLOG" > body.json
           curl -s -X PATCH "https://gitcode.com/api/v5/user" -H "PRIVATE-TOKEN: $GITCODE_TOKEN" -H "Content-Type: application/json" -d @body.json -o gitcode_resp.json -w "http=%{http_code}" || true
-          head -c 300 gitcode_resp.json; echo
-          echo "=== 复核公开资料 ==="
-          curl -s "https://gitee.com/api/v5/users/showhoo" | head -c 400; echo
-          curl -s "https://gitcode.com/api/v5/users/showhoo" | head -c 400; echo
+          head -c 200 gitcode_resp.json; echo
+          echo "=== 复核 ==="
+          curl -s "https://gitcode.com/api/v5/users/showhoo" | grep -o '"description":"[^"]*"\|"website":"[^"]*"'
