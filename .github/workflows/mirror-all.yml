@@ -58,6 +58,19 @@ jobs:
                 -d "{\"name\":\"${name}\",\"private\":$([[ $VIS == private ]] && echo true || echo false),\"description\":\"${desc}\"}"
             fi
 
+            # ---- 元数据刷新：简介每次运行对齐 GitHub（修补建仓后设置的描述）----
+            if [ -n "$desc" ]; then
+              GITEE_PATCH=$(curl -s -o /dev/null -w "%{http_code}" -X PATCH 
+                -H "Authorization: Bearer $GITEE_TOKEN" 
+                "https://gitee.com/api/v5/repos/${GITEE_USER}/${name}" 
+                --data-urlencode "description=${desc}")
+              GITCODE_PATCH=$(curl -s -o /dev/null -w "%{http_code}" -X PATCH 
+                -H "PRIVATE-TOKEN: $GITCODE_TOKEN" -H "Content-Type: application/json" 
+                "https://gitcode.com/api/v5/repos/${GITCODE_USER}/${name}" 
+                -d "{\"description\":\"${desc}\"}")
+              echo "  ↺ 简介刷新: gitee=$GITEE_PATCH gitcode=$GITCODE_PATCH"
+            fi
+
             # ---- 镜像推送（裸镜像：分支+标签全量）----
             git clone --mirror "https://x-access-token:${GH_PAT}@github.com/${GITHUB_REPOSITORY_OWNER}/${name}.git" "mirror_${name}.git"
             cd "mirror_${name}.git"
@@ -74,3 +87,4 @@ jobs:
 
           echo ""
           echo "=== 全部仓库镜像完成 ==="
+
