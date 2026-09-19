@@ -18,6 +18,8 @@ export interface WireParamEntry {
   readonly unitWeightKgPerKm: number;
   /** 20℃ 直流电阻，Ω/km */
   readonly r20OhmPerKm: number;
+  /** 电阻温度系数 α，1/℃（按材质真值，TB/T 2809-2026 6.10） */
+  readonly resistanceAlphaPerDegC: number;
   /** 150℃ 持续载流量，室内口径，A */
   readonly ampacityIndoor150A: number;
   /** 150℃ 持续载流量，室外口径，A */
@@ -52,49 +54,59 @@ export interface WireParamEntry {
  *
  * ⚠️ 载流量字段仍为 2017 版表5 口径；站点已于 2026-09-19 切换 2026 版表5
  * （室内值 442/524/509/593/511/590 等，含 2017 对照列），npm 侧同步待另批。
+ *
+ * 电阻温度系数口径（2026-09-19 实装，修复批 D）：每行 resistanceAlphaPerDegC
+ * 按各材质真值取（TB/T 2809-2026 6.10）——银（CTAH）0.00380、锡（CTS）0.00320、
+ * 镁（CTMH）0.00270；旧版统一用纯铜 0.00393 系「纯铜近似」（偏保守），已废弃。
  */
 export const TB2809_WIRE_PARAMS: Record<CopperWireModel, WireParamEntry> = {
   'CTMH-120': {
     unitWeightKgPerKm: 1076,
     r20OhmPerKm: 0.2211,
+    resistanceAlphaPerDegC: 0.0027,
     ampacityIndoor150A: 430,
     ampacityOutdoor150A: 560,
-    note: '取标准 CTMH 行（高强度铜镁合金），r20 = ρ 上限 0.02653 ÷ 120（2026-09-19 更正：旧值 0.2113 误用 0.02535 档）',
+    note: '取标准 CTMH 行（高强度铜镁合金），r20 = ρ 上限 0.02653 ÷ 120（2026-09-19 更正：旧值 0.2113 误用 0.02535 档），α=0.00270（2026 版 6.10 镁）',
   },
   'CTMH-150': {
     unitWeightKgPerKm: 1342,
     r20OhmPerKm: 0.1769,
+    resistanceAlphaPerDegC: 0.0027,
     ampacityIndoor150A: 500,
     ampacityOutdoor150A: 650,
-    note: '取标准 CTMH 行（高强度铜镁合金），r20 = 0.02653 ÷ 150（2026-09-19 更正：旧值 0.169 误用 0.02535 档）',
+    note: '取标准 CTMH 行（高强度铜镁合金），r20 = 0.02653 ÷ 150（2026-09-19 更正：旧值 0.169 误用 0.02535 档），α=0.00270（2026 版 6.10 镁）',
   },
   'CTAH-120': {
     unitWeightKgPerKm: 1076,
     r20OhmPerKm: 0.1481,
+    resistanceAlphaPerDegC: 0.0038,
     ampacityIndoor150A: 515,
     ampacityOutdoor150A: 680,
-    note: '取标准 CTA 行（铜银合金），ρ ≤ 0.01777',
+    note: '取标准 CTA 行（铜银合金），ρ ≤ 0.01777，α=0.00380（2026 版 6.10 银）',
   },
   'CTAH-150': {
     unitWeightKgPerKm: 1342,
     r20OhmPerKm: 0.1185,
+    resistanceAlphaPerDegC: 0.0038,
     ampacityIndoor150A: 620,
     ampacityOutdoor150A: 785,
-    note: '取标准 CTA 行（铜银合金）',
+    note: '取标准 CTA 行（铜银合金），α=0.00380（2026 版 6.10 银）',
   },
   'CTS-120': {
     unitWeightKgPerKm: 1079,
     r20OhmPerKm: 0.1545,
+    resistanceAlphaPerDegC: 0.0032,
     ampacityIndoor150A: 515,
     ampacityOutdoor150A: 680,
-    note: '取标准 CTS 行（铜锡合金），r20 = ρ 上限 0.01854 ÷ 120（2026-09-19 更正：旧值 0.1916 误用 0.02299 档），载流量按 CTS 行取值',
+    note: '取标准 CTS 行（铜锡合金），r20 = ρ 上限 0.01854 ÷ 120（2026-09-19 更正：旧值 0.1916 误用 0.02299 档），载流量按 CTS 行取值，α=0.00320（2026 版 6.10 锡）',
   },
   'CTS-150': {
     unitWeightKgPerKm: 1347,
     r20OhmPerKm: 0.1236,
+    resistanceAlphaPerDegC: 0.0032,
     ampacityIndoor150A: 620,
     ampacityOutdoor150A: 790,
-    note: '取标准 CTS 行（铜锡合金），r20 = 0.01854 ÷ 150（2026-09-19 更正：旧值 0.1533 误用 0.02299 档），载流量按 CTS 行取值',
+    note: '取标准 CTS 行（铜锡合金），r20 = 0.01854 ÷ 150（2026-09-19 更正：旧值 0.1533 误用 0.02299 档），载流量按 CTS 行取值，α=0.00320（2026 版 6.10 锡）',
   },
 };
 
@@ -133,7 +145,12 @@ export function wireLookup(input: CopperLookupInput): CopperLookupResult {
     throw new RangeError(`适用温度为 −40 ~ 90 ℃，收到 ${ambientTempDegC} ℃`);
   }
 
-  const rT = resistanceAtTempOhmPerKm(params.r20OhmPerKm, ambientTempDegC);
+  // 温修按各材质真值 α（TB/T 2809-2026 6.10），不再用纯铜 0.00393 近似
+  const rT = resistanceAtTempOhmPerKm(
+    params.r20OhmPerKm,
+    ambientTempDegC,
+    params.resistanceAlphaPerDegC,
+  );
 
   return {
     model,

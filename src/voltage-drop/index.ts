@@ -4,7 +4,7 @@ export { voltageDropMeta } from './meta';
 export const DEFAULT_MIN_END_VOLTAGE_V = 20000;
 
 // 电阻温度修正统一来自 src/common/resistance.ts（copper 与 voltage-drop 共用）
-import { resistanceAtTempOhmPerKm } from '../common/resistance';
+import { COPPER_ALPHA_PER_DEG_C, resistanceAtTempOhmPerKm } from '../common/resistance';
 
 export interface VoltageDropInput {
   /** 变电所母线电压 U₀，V */
@@ -21,6 +21,12 @@ export interface VoltageDropInput {
   readonly parallelCount?: number;
   /** 末端最低允许电压，V。缺省 20000 */
   readonly minEndVoltageV?: number;
+  /**
+   * 电阻温度系数 α，1/℃（2026-09-19 实装，修复批 D）。
+   * 须与 r₂₀ 对应材质配套（TB/T 2809-2026 6.10）：银 0.00380 / 锡 0.00320 /
+   * 镁 0.00270 / 铬锆 0.00290。缺省纯铜 0.00393（供无型号场景）。
+   */
+  readonly alphaPerDegC?: number;
 }
 
 export interface VoltageDropResult {
@@ -60,7 +66,11 @@ export function voltageDropCheck(input: VoltageDropInput): VoltageDropResult {
   const minEndVoltageV = input.minEndVoltageV ?? DEFAULT_MIN_END_VOLTAGE_V;
 
   const rT =
-    resistanceAtTempOhmPerKm(r20OhmPerKm, input.tempDegC ?? 25) / parallelCount;
+    resistanceAtTempOhmPerKm(
+      r20OhmPerKm,
+      input.tempDegC ?? 25,
+      input.alphaPerDegC ?? COPPER_ALPHA_PER_DEG_C,
+    ) / parallelCount;
   const voltageDropV = currentA * rT * feederLengthKm;
   const endVoltageV = busVoltageV - voltageDropV;
 

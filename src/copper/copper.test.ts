@@ -119,6 +119,31 @@ describe('copper - 电阻温度修正', () => {
   it('默认温度系数为 0.00393 /℃', () => {
     expect(COPPER_ALPHA_PER_DEG_C).toBeCloseTo(0.00393, 9);
   });
+
+  it('温修按各材质真值 α（2026-09-19 修复批 D；2809 2026 版 6.10）', () => {
+    // 表值：CTMH（镁）0.00270、CTAH（银）0.00380、CTS（锡）0.00320
+    expect(TB2809_WIRE_PARAMS['CTMH-120'].resistanceAlphaPerDegC).toBeCloseTo(0.0027, 9);
+    expect(TB2809_WIRE_PARAMS['CTMH-150'].resistanceAlphaPerDegC).toBeCloseTo(0.0027, 9);
+    expect(TB2809_WIRE_PARAMS['CTAH-120'].resistanceAlphaPerDegC).toBeCloseTo(0.0038, 9);
+    expect(TB2809_WIRE_PARAMS['CTAH-150'].resistanceAlphaPerDegC).toBeCloseTo(0.0038, 9);
+    expect(TB2809_WIRE_PARAMS['CTS-120'].resistanceAlphaPerDegC).toBeCloseTo(0.0032, 9);
+    expect(TB2809_WIRE_PARAMS['CTS-150'].resistanceAlphaPerDegC).toBeCloseTo(0.0032, 9);
+
+    // CTMH-120 @40℃：0.2211×[1+0.0027×20] = 0.2330394（旧纯铜近似给 0.23847846，偏保守）
+    expect(wireLookup({ ...SITE_INPUT, ambientTempDegC: 40 }).rTOhmPerKm).toBeCloseTo(0.2330394, 9);
+    // CTAH-120 @40℃：0.1481×[1+0.0038×20] = 0.1593556
+    expect(
+      wireLookup({ model: 'CTAH-120', lengthKm: 1, ambientTempDegC: 40 }).rTOhmPerKm,
+    ).toBeCloseTo(0.1593556, 9);
+    // CTS-120 @40℃：0.1545×[1+0.0032×20] = 0.164388
+    expect(
+      wireLookup({ model: 'CTS-120', lengthKm: 1, ambientTempDegC: 40 }).rTOhmPerKm,
+    ).toBeCloseTo(0.164388, 9);
+    // CTS-150 @40℃：0.1236×[1+0.0032×20] = 0.1315104
+    expect(
+      wireLookup({ model: 'CTS-150', lengthKm: 1, ambientTempDegC: 40 }).rTOhmPerKm,
+    ).toBeCloseTo(0.1315104, 9);
+  });
 });
 
 describe('copper - 输入校验', () => {

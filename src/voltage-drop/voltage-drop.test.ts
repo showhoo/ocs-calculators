@@ -8,12 +8,16 @@ import { resistanceAtTempOhmPerKm } from '../common/resistance';
 
 /**
  * 期望值由站点 `/calculator/assets/calc-core.js` 的 voltageDrop() 源码公式
- * 按页面默认输入（U₀=27500 V、I=600 A、r₂₀=0.2211 Ω/km、L=25 km、T=40 ℃）算出。
+ * 按页面默认输入（U₀=27500 V、I=600 A、r₂₀=0.2211 Ω/km、L=25 km、T=40 ℃、
+ * α=0.00270 即 CTMH-120 镁合金真值）算出（脚本 /tmp/dcalc/alpha.mjs，非手算）。
  *
- *   r_T  = 0.2211·[1+0.00393·20] = 0.23847846 Ω/km
- *   ΔU   = 600 × 0.23847846 × 25 = 3577.1769 V
- *   Uend = 27500 − 3577.1769     = 23922.8231 V
- *   压降率                        = 13.007916 %
+ * 2026-09-19 修复批 D：per-alloy α 实装——默认工况 r₂₀=0.2211 为 CTMH-120，
+ * 温修按镁合金真值 α=0.00270（旧版统一纯铜 0.00393 系「纯铜近似」，已废弃）。
+ *
+ *   r_T  = 0.2211·[1+0.00270·20] = 0.2330394 Ω/km
+ *   ΔU   = 600 × 0.2330394 × 25 = 3495.591 V
+ *   Uend = 27500 − 3495.591     = 24004.409 V
+ *   压降率                        = 3495.591/27500×100 = 12.71124 %
  */
 const SITE_INPUT: VoltageDropInput = {
   busVoltageV: 27500,
@@ -21,21 +25,36 @@ const SITE_INPUT: VoltageDropInput = {
   r20OhmPerKm: 0.2211,
   feederLengthKm: 25,
   tempDegC: 40,
+  alphaPerDegC: 0.0027,
 };
 
 describe('voltage-drop - 与站点源码公式回归', () => {
-  it('r_T、ΔU、末端电压与压降率', () => {
+  it('r_T、ΔU、末端电压与压降率（CTMH α=0.00270）', () => {
     const r = voltageDropCheck(SITE_INPUT);
-    expect(r.rTOhmPerKm).toBeCloseTo(0.23847846, 10);
-    expect(r.voltageDropV).toBeCloseTo(3577.1769, 6);
-    expect(r.endVoltageV).toBeCloseTo(23922.8231, 6);
-    expect(r.dropPercent).toBeCloseTo(13.007916, 9);
+    expect(r.rTOhmPerKm).toBeCloseTo(0.2330394, 10);
+    expect(r.voltageDropV).toBeCloseTo(3495.591, 6);
+    expect(r.endVoltageV).toBeCloseTo(24004.409, 6);
+    expect(r.dropPercent).toBeCloseTo(12.71124, 9);
   });
 
   it('末端电压满足 25kV 体系下限', () => {
     const r = voltageDropCheck(SITE_INPUT);
     expect(DEFAULT_MIN_END_VOLTAGE_V).toBe(20000);
     expect(r.passes).toBe(true);
+  });
+
+  it('缺省 α 为纯铜 0.00393（无型号场景）；显式传 α 时按真值', () => {
+    // 缺省（纯铜）：0.2211·[1+0.00393·20] = 0.23847846
+    const { alphaPerDegC: _omit, ...pureCu } = SITE_INPUT;
+    expect(voltageDropCheck(pureCu).rTOhmPerKm).toBeCloseTo(0.23847846, 10);
+    // 银合金 CTAH：0.1481·[1+0.0038·20] = 0.1593556
+    expect(
+      voltageDropCheck({ ...SITE_INPUT, r20OhmPerKm: 0.1481, alphaPerDegC: 0.0038 }).rTOhmPerKm,
+    ).toBeCloseTo(0.1593556, 10);
+    // 锡合金 CTS：0.1545·[1+0.0032·20] = 0.164388
+    expect(
+      voltageDropCheck({ ...SITE_INPUT, r20OhmPerKm: 0.1545, alphaPerDegC: 0.0032 }).rTOhmPerKm,
+    ).toBeCloseTo(0.164388, 10);
   });
 });
 

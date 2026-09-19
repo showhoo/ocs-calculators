@@ -42,9 +42,9 @@ export interface CurveStaggerResult {
   readonly cantShiftM: number;
   /** 跨中风偏 p_w，m */
   readonly windOffsetM: number;
-  /** 矢度与拉出值同向时的偏移，m */
+  /** 矢度与拉出值同向、超高横移反向的偏移 |ā + c − δ| + p_w，m */
   readonly offsetPlusM: number;
-  /** 矢度与拉出值反向时的偏移，m */
+  /** 矢度与拉出值反向、超高横移同向的偏移 |ā − c + δ| + p_w，m */
   readonly offsetMinusM: number;
   /** 取两者较大值，m */
   readonly maxOffsetM: number;
@@ -95,9 +95,10 @@ export function cantShiftM(
  *
  * 风偏取风向垂直线路的最不利工况（sin²θ = 1）。
  *
- * ⚠️ 与站点源码一致：超高横移 δ 会计算并返回，但**不参与** e 的合成。
- * 站点 JSDoc 描述的公式为 `e = |ā ± c ∓ δ| + p_w`，与其实现不符；
- * 若站点后续修正，本库的 offsetPlusM / offsetMinusM 需同步调整。
+ * 2026-09-19 更正（修复批 D）：超高横移 δ 纳入综合偏移合成——
+ *   e₊ = |ā + c − δ| + p_w（矢度与拉出值同向、超高横移反向）
+ *   e₋ = |ā − c + δ| + p_w
+ * 与站点 calc-core.js curveStaggerCheck 同批修正（旧注释「δ 不参与合成」已删除）。
  */
 export function curveStaggerCheck(input: CurveStaggerInput): CurveStaggerResult {
   const { spanM, stagger1M, stagger2M, wireDiameterM, dragCoefficient, tensionN } = input;
@@ -132,8 +133,9 @@ export function curveStaggerCheck(input: CurveStaggerInput): CurveStaggerResult 
     0.5 * rhoAir * input.windSpeedMPerS * input.windSpeedMPerS * wireDiameterM * dragCoefficient;
   const pw = (windLoadNPerM * spanM * spanM) / (8 * tensionN);
 
-  const offsetPlusM = Math.abs(meanStaggerM + c) + pw;
-  const offsetMinusM = Math.abs(meanStaggerM - c) + pw;
+  // 2026-09-19 更正：δ 纳入合成，两风向取大
+  const offsetPlusM = Math.abs(meanStaggerM + c - delta) + pw;
+  const offsetMinusM = Math.abs(meanStaggerM - c + delta) + pw;
   const maxOffsetM = Math.max(offsetPlusM, offsetMinusM);
 
   return {

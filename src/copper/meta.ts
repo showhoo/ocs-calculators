@@ -6,7 +6,8 @@ export const copperMeta: CalculatorMeta = {
   summary:
     '内置 CTMH / CTAH / CTS 系列 120/150 mm² 接触线参数表，按长度与环境温度给出总重量与温度修正电阻。',
   formula: [
-    '电阻温度修正（α = 0.00393 /℃）：r_T = r₂₀·[1 + α·(T − 20)]',
+    '电阻温度修正（α 按型号取真值）：r_T = r₂₀·[1 + α·(T − 20)]',
+    '温修按各材质真值 α（TB/T 2809-2026 6.10）：银（CTAH）0.00380 / 锡（CTS）0.00320 / 镁（CTMH）0.00270',
     '总重量：W = w₀ × l（w₀ 单位重量 kg/km，l 长度 km）',
   ],
   references: [

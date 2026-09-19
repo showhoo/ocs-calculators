@@ -4,11 +4,11 @@ export { dropperMeta } from './meta';
 export type SuspensionType = 'simple' | 'elastic';
 
 export interface DropperInput {
-  /** 悬挂类型。弹性链形须同时提供 messenger 参数 */
+  /** 悬挂类型 */
   readonly suspension: SuspensionType;
   /** 跨距 L，m */
   readonly spanM: number;
-  /** 接触线张力 T_c，kN */
+  /** 接触线张力 T_c，kN（弹性链形计算接触线弛度 f_c 用；简单链形不参与计算但保留正值校验） */
   readonly contactTensionKN: number;
   /** 结构高度 H，m */
   readonly structureHeightM: number;
@@ -17,15 +17,16 @@ export interface DropperInput {
   /** 吊弦间距 d，m，须能整除跨距 */
   readonly dropperSpacingM: number;
   /**
-   * 承力索参数。弹性链形悬挂（'elastic'）必填，
-   * 简单链形悬挂传 null 或不传。
+   * 承力索参数，两种悬挂类型均必填（2026-09-19 口径更正）：
+   * 承力索弛度按总单位荷载 w = q_c + q_m（含经吊弦传递的接触线荷载）
+   * 与承力索张力 T_m 计算，简单链形同样需要。
    */
-  readonly messenger?: {
+  readonly messenger: {
     /** 承力索张力 T_m，kN */
     readonly tensionKN: number;
     /** 承力索单位荷载 q_m，kN/m */
     readonly loadKNPerM: number;
-  } | null;
+  };
 }
 
 /** 单个吊弦点的计算结果 */
@@ -34,9 +35,9 @@ export interface DropperPoint {
   readonly index: number;
   /** 距起始端的距离 x，m */
   readonly positionM: number;
-  /** 接触线弛度 f_c(x)，m */
+  /** 接触线弛度 f_c(x)，m（简单链形恒为 0；使吊弦变长） */
   readonly contactSagM: number;
-  /** 承力索弛度 f_m(x)，m（简单链形恒为 0） */
+  /** 承力索弛度 f_m(x)，m（按总荷载 w = q_c + q_m 口径；使吊弦变短） */
   readonly messengerSagM: number;
   /** 吊弦长度 l，m */
   readonly dropperLengthM: number;
@@ -44,7 +45,7 @@ export interface DropperPoint {
 
 export interface DropperResult {
   readonly points: readonly DropperPoint[];
-  /** 跨中最大弛度 f_max，m */
+  /** 跨中最大有效弛度 f_m − f_c，m */
   readonly maxSagM: number;
   /** 最短吊弦长度，m（位于跨中） */
   readonly shortestDropperM: number;
@@ -53,7 +54,7 @@ export interface DropperResult {
 }
 
 /**
- * 抛物线弛度：f(x) = q·x·(L−x) / (2·T)
+ * 抛物线弛度：f(x) = q·x·(L−x) / (2·T) = 4·f_max·x·(L−x) / L²。
  *
  * 对接触线和承力索通用，区别只在传哪一组 q / T。
  *
@@ -113,10 +114,17 @@ export function dropperPositionsM(spanM: number, spacingM: number): number[] {
 }
 
 /**
- * 计算整跨各吊弦长度。
+ * 计算整跨各吊弦长度（2026-09-19 口径更正）。
  *
- * 简单链形：l_i = H − f_c(x_i)
- * 弹性链形：l_i = H − f_c(x_i) + f_m(x_i)
+ * 承力索下垂使吊弦变短、接触线（相对水平）下垂使吊弦变长：
+ *
+ * - 承力索弛度（总荷载口径）：f_m(x) = 4·f_m_max·x(L−x)/L²，
+ *   f_m_max = w·L²/(8·T_m)，w = q_c + q_m（承力索承担的总单位荷载）
+ * - 接触线弛度（弹性链形）：f_c(x) = 4·f_c_max·x(L−x)/L²，
+ *   f_c_max = q_c·L²/(8·T_c)
+ *
+ * 简单链形：l_i = H − f_m(x_i)
+ * 弹性链形：l_i = H − f_m(x_i) + f_c(x_i)
  */
 export function dropperLengths(input: DropperInput): DropperResult {
   const {
@@ -138,32 +146,31 @@ export function dropperLengths(input: DropperInput): DropperResult {
     throw new RangeError(`结构高度必须为正数，收到 ${structureHeightM} m`);
   }
 
-  if (suspension === 'elastic') {
-    const m = input.messenger;
-    if (!m) {
-      throw new RangeError('弹性链形悬挂必须提供承力索参数（messenger）');
-    }
-    if (!(m.tensionKN > 0) || !(m.loadKNPerM > 0)) {
-      throw new RangeError('承力索张力与单位荷载必须为正数');
-    }
+  const messenger = input.messenger;
+  if (!messenger) {
+    throw new RangeError('必须提供承力索参数（messenger）——承力索弛度按总荷载 w = q_c + q_m 计算，两种悬挂类型均需要');
+  }
+  if (!(messenger.tensionKN > 0) || !(messenger.loadKNPerM > 0)) {
+    throw new RangeError('承力索张力与单位荷载必须为正数');
   }
 
   const positions = dropperPositionsM(spanM, spacingM);
-  const messenger = suspension === 'elastic' ? input.messenger : null;
 
   const points: DropperPoint[] = positions.map((xM, index) => {
-    const contactSag = parabolaSagM(
+    // 承力索弛度：总荷载口径 w = q_c + q_m（含经吊弦传给承力索的接触线荷载）
+    const messengerSag = parabolaSagM(
       xM,
       spanM,
-      contactLoadKNPerM,
-      contactTensionKN,
+      contactLoadKNPerM + messenger.loadKNPerM,
+      messenger.tensionKN,
     );
-    const messengerSag =
-      messenger && messenger !== null
-        ? parabolaSagM(xM, spanM, messenger.loadKNPerM, messenger.tensionKN)
+    // 接触线弛度：仅弹性链形计入（相对水平的下垂使吊弦变长）
+    const contactSag =
+      suspension === 'elastic'
+        ? parabolaSagM(xM, spanM, contactLoadKNPerM, contactTensionKN)
         : 0;
 
-    const dropperLengthM = structureHeightM - contactSag + messengerSag;
+    const dropperLengthM = structureHeightM - messengerSag + contactSag;
     if (dropperLengthM <= 0) {
       throw new RangeError(
         `x = ${xM} m 处吊弦长度非正（${dropperLengthM.toFixed(4)} m）：` +
@@ -177,7 +184,8 @@ export function dropperLengths(input: DropperInput): DropperResult {
   let maxSagM = 0;
   let shortestDropperM = Number.POSITIVE_INFINITY;
   for (const p of points) {
-    if (p.contactSagM > maxSagM) maxSagM = p.contactSagM;
+    const effectiveSag = p.messengerSagM - p.contactSagM;
+    if (effectiveSag > maxSagM) maxSagM = effectiveSag;
     if (p.dropperLengthM < shortestDropperM) shortestDropperM = p.dropperLengthM;
   }
 
