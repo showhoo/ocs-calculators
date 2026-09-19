@@ -6,19 +6,13 @@ import { G0 } from '../types';
  * ⚠️ 全部为标称参考值，实际取值以产品技术条件与设计文件为准。
  * ⚠️ 本站计算器的参数界面支持手工覆盖这些值 —— 那才是工程上正确的用法。
  *
- * 自重口径（2026-08-31 已确定）：
- * 线密度取标准「参考单位质量」表值，而非由标称截面推算。标准表分两列：
- *   型号｜标称截面｜计算截面｜参考单位质量
- *   CT 120｜120｜121｜1082 kg/km
- *   注：参考单位质量按密度 8.94 g/cm³ 计算
- * 即标准的 8.94 g/cm³ 是配「计算截面」（把尺寸公差计入后的截面）用的，
- * 不是配「标称截面」用的：121 × 8.94 × 1e-3 = 1.0817 ≈ 1.082 kg/m。
- * 因此 CTMH-120 自重 g = 1.082 × 9.81 = 10.61442 N/m，
- * 与站点 /calculator/tension/ 预设 rho=1.082、COPPER_TABLE.unitWeight=1082 一致。
- * 早期版本用标称截面 120 直接推算得 1.0728 kg/m，偏低约 0.85%，已废弃。
- *
- * 依据：TB/T 2810-2017（纯铜）、TB/T 2821-2017（铜银）规格尺寸表；
- * CTMH/CTAH 型号口径与 TB/T 2809-2017 的对应关系见 copper 模块 note 字段。
+ * 自重口径（2026-09-20 复核对齐）：
+ * 线密度取标准「参考单位质量」实值，与 TB/T 2809-2026 表3（=2017 派生同值）一致，
+ * 并与 `src/copper/index.ts` 的 TB2809_WIRE_PARAMS.unitWeightKgPerKm、站点
+ * /calculator/tension/ 预设 rho、COPPER_TABLE.unitWeight 同源。
+ * CTMH-120/150=1076/1342、CTAH-120=1076（铜银）。
+ * 早期版本混入 TB/T 2810-2017（纯铜）参考表 1082/1350/1070 与 8.94 g/cm³ 推算，
+ * 与 2809 表3 实值不符，2026-09-20 已更正。
  */
 
 export interface WireSpec {
@@ -30,7 +24,7 @@ export interface WireSpec {
   readonly nameEn: string;
   /** 标称截面积 A，mm² */
   readonly crossSectionMM2: number;
-  /** 计算截面积，mm²（标准表列，自重按此值 × 8.94 g/cm³ 计） */
+  /** 计算截面积，mm²（标准表列；自重实值见 linearMassKgPerM，不按密度推算） */
   readonly calculatedSectionMM2: number;
   /** 弹性模量 E，GPa（标称参考值） */
   readonly elasticModulusGPa: number;
@@ -52,9 +46,9 @@ export type WirePresetId = 'cthm120' | 'cthm150' | 'ctha120';
  * （站点 /calculator/assets/calc-core.js 的 COPPER_TABLE）。
  */
 export const STANDARD_UNIT_WEIGHT_KG_PER_KM: Readonly<Record<WirePresetId, number>> = {
-  cthm120: 1082,
-  cthm150: 1350,
-  ctha120: 1070,
+  cthm120: 1076,
+  cthm150: 1342,
+  ctha120: 1076,
 };
 
 /** 由标准参考单位质量换算线密度，kg/m */

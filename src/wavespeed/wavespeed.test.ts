@@ -10,17 +10,17 @@ import {
 
 /**
  * 期望值由站点 `/calculator/assets/calc-core.js` 的 waveSpeed() 源码公式
- * 按页面默认输入（ρ=1.082 kg/m、T=27 kN、v=350 km/h、l=50 m）独立算出，
- * 非从渲染结果读取。
+ * 按页面默认输入（ρ=1.076 kg/m、T=27 kN、v=350 km/h、l=50 m）独立算出，
+ * 非从渲染结果读取（ρ=1.076 为 CTMH-120 自重，2026-09-20 对齐 2809 表3）。
  *
- *   c     = √(27000/1.082)        = 157.96768428736542 m/s
- *   β     = (350/3.6)/c           = 0.6154563995846222
- *   f₁~f₃ = n/(2·50)·c            = 1.5796768428736543, 3.1593536857473086, 4.739030528620963
- *   v_res = f₁·50·3.6             = 284.3418317172578 km/h
+ *   c     = √(27000/1.076)        = 158.40750235697163 m/s
+ *   β     = (350/3.6)/c           = 0.6137475862925466
+ *   f₁~f₃ = n/(2·50)·c            = 1.5840750235697163, 3.1681500471394326, 4.752225070709149
+ *   v_res = f₁·50·3.6             = 285.13350424254895 km/h
  */
 const SITE_INPUT: WaveSpeedInput = {
   tensionKN: 27,
-  linearMassKgPerM: 1.082,
+  linearMassKgPerM: 1.076,
   speedKmH: 350,
   spanM: 50,
 };
@@ -28,18 +28,18 @@ const SITE_INPUT: WaveSpeedInput = {
 describe('wavespeed - 与站点源码公式回归', () => {
   it('波速 c、利用率 β 与一阶共振车速', () => {
     const r = waveSpeedCheck(SITE_INPUT);
-    expect(r.waveSpeedMPerS).toBeCloseTo(157.96768428736542, 9);
-    expect(r.beta).toBeCloseTo(0.6154563995846222, 12);
-    expect(r.betaPercent).toBeCloseTo(61.54563995846222, 9);
-    expect(r.resonanceSpeedKmH).toBeCloseTo(284.3418317172578, 9);
+    expect(r.waveSpeedMPerS).toBeCloseTo(158.40750235697163, 9);
+    expect(r.beta).toBeCloseTo(0.6137475862925466, 12);
+    expect(r.betaPercent).toBeCloseTo(61.37475862925466, 9);
+    expect(r.resonanceSpeedKmH).toBeCloseTo(285.13350424254895, 9);
   });
 
   it('前三阶固有频率', () => {
     const r = waveSpeedCheck(SITE_INPUT);
     const [f1, f2, f3] = r.naturalFrequenciesHz;
-    expect(f1).toBeCloseTo(1.5796768428736543, 12);
-    expect(f2).toBeCloseTo(3.1593536857473086, 12);
-    expect(f3).toBeCloseTo(4.739030528620963, 12);
+    expect(f1).toBeCloseTo(1.5840750235697163, 12);
+    expect(f2).toBeCloseTo(3.1681500471394326, 12);
+    expect(f3).toBeCloseTo(4.752225070709149, 12);
   });
 
   it('默认阈值下不告警', () => {
@@ -51,21 +51,21 @@ describe('wavespeed - 与站点源码公式回归', () => {
 
 describe('wavespeed - 公式性质', () => {
   it('c = √(T/ρ)', () => {
-    // 手算：√(27000/1.082)
-    expect(wavePropagationSpeedMPerS(27, 1.082)).toBeCloseTo(
-      Math.sqrt(27000 / 1.082),
+    // 手算：√(27000/1.076)
+    expect(wavePropagationSpeedMPerS(27, 1.076)).toBeCloseTo(
+      Math.sqrt(27000 / 1.076),
       12,
     );
   });
 
   it('张力增大波速提高，线密度增大波速降低', () => {
-    const base = wavePropagationSpeedMPerS(27, 1.082);
-    expect(wavePropagationSpeedMPerS(54, 1.082)).toBeCloseTo(base * Math.SQRT2, 9);
-    expect(wavePropagationSpeedMPerS(27, 2.164)).toBeCloseTo(base / Math.SQRT2, 9);
+    const base = wavePropagationSpeedMPerS(27, 1.076);
+    expect(wavePropagationSpeedMPerS(54, 1.076)).toBeCloseTo(base * Math.SQRT2, 9);
+    expect(wavePropagationSpeedMPerS(27, 2.152)).toBeCloseTo(base / Math.SQRT2, 9);
   });
 
   it('f_n 与 n 成正比', () => {
-    const c = wavePropagationSpeedMPerS(27, 1.082);
+    const c = wavePropagationSpeedMPerS(27, 1.076);
     expect(naturalFrequencyHz(2, 50, c)).toBeCloseTo(naturalFrequencyHz(1, 50, c) * 2, 12);
     expect(naturalFrequencyHz(3, 50, c)).toBeCloseTo(naturalFrequencyHz(1, 50, c) * 3, 12);
   });

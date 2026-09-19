@@ -7,34 +7,34 @@ import { iceLoadNPerM } from '../common/ice';
  * 按页面默认输入算出。页面传参做单位换算：
  *   d: in-d / 1000（mm→m）、b: in-b / 1000（mm→m）、T: in-T * 1000（kN→N）
  *
- * 默认输入：d=12.5 mm、b=5 mm、T=13 kN、l=50 m、g_self=10.61 N/m、ρ=900 kg/m³
+ * 默认输入：d=12.5 mm、b=5 mm、T=13 kN、l=50 m、g_self=10.56 N/m（CTMH-120 自重，2026-09-19 对齐 2809 表3）、ρ=900 kg/m³
  *
  *   g_ice  = 900·9.81·π·0.005·(0.0125+0.005) = 2.4269981346226253 N/m
- *   g_tot  = 10.61 + g_ice                   = 13.036998134622625 N/m
- *   f₀     = 10.61·50²/(8·13000)             = 0.2550480769230769 m
- *   f_ice  = g_tot·50²/(8·13000)             = 0.3133893782361208 m
- *   增幅                                      = 22.874628978535583 %
+ *   g_tot  = 10.56 + g_ice                   = 12.986998134622626 N/m
+ *   f₀     = 10.56·50²/(8·13000)             = 0.2538461538461538 m
+ *   f_ice  = g_tot·50²/(8·13000)             = 0.3121874551591978 m
+ *   增幅                                      = 22.982936880971876 %
  */
 const SITE_INPUT: IcingCheckInput = {
   wireDiameterM: 12.5 / 1000,
   iceThicknessM: 5 / 1000,
   tensionN: 13 * 1000,
   spanM: 50,
-  selfWeightNPerM: 10.61,
+  selfWeightNPerM: 10.56,
 };
 
 describe('icing - 与站点源码公式回归', () => {
   it('冰重、总荷载与无冰/覆冰弛度', () => {
     const r = icingCheck(SITE_INPUT);
     expect(r.iceLoadNPerM).toBeCloseTo(2.4269981346226253, 12);
-    expect(r.totalLoadNPerM).toBeCloseTo(13.036998134622625, 12);
-    expect(r.sagNoIceM).toBeCloseTo(0.2550480769230769, 12);
-    expect(r.sagWithIceM).toBeCloseTo(0.3133893782361208, 12);
+    expect(r.totalLoadNPerM).toBeCloseTo(12.986998134622626, 12);
+    expect(r.sagNoIceM).toBeCloseTo(0.2538461538461538, 12);
+    expect(r.sagWithIceM).toBeCloseTo(0.3121874551591978, 12);
   });
 
   it('弛度增幅与重覆冰判定', () => {
     const r = icingCheck(SITE_INPUT);
-    expect(r.growthPercent).toBeCloseTo(22.874628978535583, 9);
+    expect(r.growthPercent).toBeCloseTo(22.982936880971876, 9);
     expect(r.heavy).toBe(false);
   });
 });

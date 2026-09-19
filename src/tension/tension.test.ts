@@ -36,27 +36,26 @@ function expectClose(actual: number, expected: number, relTol = 0.005): void {
  * 参数：CTMH-120（A=120 mm²），E=120 GPa，α=1.7e-5/℃，
  *       当量跨距 l_D=55 m，基准 T₁=20 kN @ t₁=-20 ℃。
  *
- * 自重口径（2026-08-31 已确定）：
- * g = 线密度 × 9.81 = 1.082 × 9.81 = 10.61442 N/m。
- * 线密度取标准「参考单位质量」1082 kg/km（TB/T 2810-2017），
- * 该值按标准的「计算截面」121 mm² × 8.94 g/cm³ 计，而非「标称截面」120 mm²。
- * 与站点页面预设 rho=1.082、表单默认值 10.61 一致。
- * 早期版本曾用输出表反算出的魔数 10.6222，偏高约 0.07%，已废弃。
+ * 自重口径（2026-09-20 复核对齐）：
+ * g = 线密度 × 9.81 = 1.076 × 9.81 = 10.56 N/m。
+ * 线密度取 TB/T 2809-2026 表3「参考单位质量」实值 1076 kg/km（CTMH-120），
+ * 与 STANDARD_UNIT_WEIGHT_KG_PER_KM、站点 /calculator/tension/ 预设 rho=1.076、默认 10.56 一致。
+ * 早期版本混入 TB/T 2810-2017（纯铜）的 1082 kg/km（g=10.61442），2026-09-20 已更正。
  */
 const PUBLISHED_TABLE = [
-  { tempDegC: -20, tensionKN: 20.0, sagM: 0.201 },
-  { tempDegC: -10, tensionKN: 17.69, sagM: 0.227 },
-  { tempDegC: 0, tensionKN: 15.45, sagM: 0.260 },
-  { tempDegC: 10, tensionKN: 13.3, sagM: 0.302 },
-  { tempDegC: 20, tensionKN: 11.3, sagM: 0.355 },
-  { tempDegC: 30, tensionKN: 9.51, sagM: 0.422 },
-  { tempDegC: 40, tensionKN: 8.0, sagM: 0.502 },
+  { tempDegC: -20, tensionKN: 20.00, sagM: 0.200 },
+  { tempDegC: -10, tensionKN: 17.69, sagM: 0.226 },
+  { tempDegC: 0, tensionKN: 15.45, sagM: 0.259 },
+  { tempDegC: 10, tensionKN: 13.30, sagM: 0.300 },
+  { tempDegC: 20, tensionKN: 11.29, sagM: 0.354 },
+  { tempDegC: 30, tensionKN: 9.50, sagM: 0.420 },
+  { tempDegC: 40, tensionKN: 7.98, sagM: 0.500 },
 ] as const;
 
 const BASE: TensionCurveInput = {
   baseTensionKN: 20,
   baseTempDegC: -20,
-  weightPerLengthNPerM: 10.61442,
+  weightPerLengthNPerM: 10.56,
   spanM: 55,
   elasticModulusGPa: 120,
   crossSectionMM2: 120,
@@ -109,8 +108,8 @@ describe('tension - 与站点已发布输出表回归', () => {
 
 describe('tension - 纯公式校验', () => {
   it('弛度 f = gl²/(8T)', () => {
-    // 手算：10.61442 × 3025 / (8 × 20000) = 0.200679
-    expectClose(sagM(10.61442, 55, 20000), 0.200679, 1e-4);
+    // 手算：10.56 × 3025 / (8 × 20000) = 0.19965
+    expectClose(sagM(10.56, 55, 20000), 0.19965, 1e-4);
   });
 
   it('当量跨距 l_D = √(Σlᵢ³/Σlᵢ)', () => {
@@ -140,26 +139,26 @@ describe('tension - 纯公式校验', () => {
   });
 
   it('自重口径：标准参考单位质量 → 自重荷载', () => {
-    // 120 mm² 标称对应计算截面 121 mm²；121 × 8.94 × 1e-3 = 1.08174 kg/m
+    // 独立辅助函数（按截面+密度推算，8.94 纯铜参考密度）；预设自重不依赖它
     expectClose(deriveLinearMassKgPerM(121), 1.08174, 1e-6);
-    // 预设取标准表值 1082 kg/km = 1.082 kg/m
-    expectClose(weightPerLengthNPerM(1.082), 10.61442, 1e-9);
+    // 预设取标准表值 1076 kg/km = 1.076 kg/m
+    expectClose(weightPerLengthNPerM(1.076), 10.55556, 1e-5);
 
     const cthm120 = findWirePreset('cthm120');
     expect(cthm120).toBeDefined();
     if (!cthm120) throw new Error('缺少 cthm120 预设');
     expect(cthm120.crossSectionMM2).toBe(120);
     expect(cthm120.calculatedSectionMM2).toBe(121);
-    expectClose(cthm120.linearMassKgPerM, 1.082, 1e-12);
-    expectClose(weightOfPresetNPerM(cthm120), 10.61442, 1e-9);
+    expectClose(cthm120.linearMassKgPerM, 1.076, 1e-12);
+    expectClose(weightOfPresetNPerM(cthm120), 10.55556, 1e-5);
 
-    // 反例：误用标称截面 120 推算会偏低约 0.85%（1.0728 vs 1.082）
+    // 反例：误用标称截面 120 推算会偏低（1.0728 vs 1.076）
     expectClose(deriveLinearMassKgPerM(120), 1.0728, 1e-6);
   });
 
   it('状态方程系数 K = g²l²EA/24', () => {
-    // 手算：10.61442² × 3025 × 1.2e11 × 1.2e-4 / 24 = 2.044886e11
-    expectClose(stateCoefficientK(10.61442, 55, 120, 120), 2.044886e11, 1e-6);
+    // 手算：10.56² × 3025 × 1.2e11 × 1.2e-4 / 24 = 2.02397184e11
+    expectClose(stateCoefficientK(10.56, 55, 120, 120), 2.02397184e11, 1e-6);
   });
 });
 
@@ -170,7 +169,7 @@ describe('tension - 求解器', () => {
   });
 
   it('解满足 T = target + K/T²', () => {
-    const K = stateCoefficientK(10.61442, 55, 120, 120);
+    const K = stateCoefficientK(10.56, 55, 120, 120);
     const { tensionN } = solveTensionN(K, 19488.025);
     expectClose(tensionN, 19488.025 + K / (tensionN * tensionN), 1e-12);
   });
