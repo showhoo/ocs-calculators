@@ -116,12 +116,27 @@ jobs:
                 RNAME=$(echo "$rel" | jq -r '.name // .tag_name')
                 RBODY=$(echo "$rel" | jq -r '.body // ""')
                 PRE=$(echo "$rel" | jq -r '.prerelease')
-                RJ=$(jq -n --arg tag "$RTAG" --arg nm "$RNAME" --arg bd "$RBODY" --argjson pre "$PRE" \
-                  '{tag_name:$tag, name:$nm, body:$bd, prerelease:$pre}')
-                RC=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
-                  -H "$AUTHH" -H "Content-Type: application/json" \
-                  -d "$RJ" "https://${plat}.com/api/v5/repos/${PUSER}/${name}/releases")
-                echo "  [$plat] 发行版 $RTAG 创建: $RC"
+                if [ "$plat" = "gitee" ]; then
+                  # Gitee 发行版接口只认表单体，JSON 体一律 400
+                  RESP=$(curl -s -w "\n%{http_code}" -X POST -H "$AUTHH" \
+                    --data-urlencode "tag_name=$RTAG" \
+                    --data-urlencode "name=$RNAME" \
+                    --data-urlencode "body=$RBODY" \
+                    --data-urlencode "prerelease=$PRE" \
+                    "https://${plat}.com/api/v5/repos/${PUSER}/${name}/releases")
+                else
+                  RJ=$(jq -n --arg tag "$RTAG" --arg nm "$RNAME" --arg bd "$RBODY" --argjson pre "$PRE" \
+                    '{tag_name:$tag, name:$nm, body:$bd, prerelease:$pre}')
+                  RESP=$(curl -s -w "\n%{http_code}" -X POST \
+                    -H "$AUTHH" -H "Content-Type: application/json" \
+                    -d "$RJ" "https://${plat}.com/api/v5/repos/${PUSER}/${name}/releases")
+                fi
+                RC=$(echo "$RESP" | tail -n1)
+                if [ "$RC" = "200" ] || [ "$RC" = "201" ]; then
+                  echo "  [$plat] 发行版 $RTAG 创建: $RC"
+                else
+                  echo "  [$plat] 发行版 $RTAG 创建失败($RC): $(echo "$RESP" | head -n -1 | head -c 200)"
+                fi
               done
             done
 
