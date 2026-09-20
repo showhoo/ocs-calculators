@@ -1,11 +1,13 @@
-# 思维接触网百科 · 计算工具集
+# 思维接触网百科 · 铁路接触网（OCS）计算工具集
 
-**铁路接触网（OCS）工程计算工具 —— 公式公开、零依赖、可直接在你的项目里引用。**
+**铁路接触网（Overhead Contact System）工程计算工具 —— 20 个计算器，公式公开、零运行时依赖、纯函数 TypeScript，可直接在你的项目里引用。已对齐 TB/T 2809-2026《电气化铁路接触网 铜合金接触线》。**
 
-**20 个模块 · 228 项单元测试 · 零依赖 · 纯函数 TypeScript**（Node ≥ 18）
+覆盖张力-温度安装曲线、吊弦长度、弛度、风偏限界、载流量与短路热稳定、接触线磨耗、锚段长度校核等接触网设计、施工与维护中的高频计算。
 
-🔗 在线使用：<https://www.itswe.com/Category:tools>
-📖 配套百科：<https://www.itswe.com>（670+ 页接触网专业内容）
+**20 个模块 · 228 项单元测试 · 零运行时依赖 · 纯函数 TypeScript**（Node ≥ 18）
+
+🔗 在线使用：[https://www.itswe.com/Category:tools](https://www.itswe.com/Category:tools)
+📖 配套百科：[https://www.itswe.com](https://www.itswe.com)（670+ 页接触网专业内容）
 
 [English](./README_EN.md) | 简体中文
 
@@ -15,19 +17,31 @@
 ![license](https://img.shields.io/npm/l/ocs-calculators)
 ![dependencies](https://img.shields.io/badge/dependencies-0-brightgreen)
 
-> ⚠️ **v0.3.1 已弃用**：该版本 `STANDARD_UNIT_WEIGHT_KG_PER_KM` 含错值
-> （1082/1350/1070，TB/T 2810 口径混入），已在 **v0.3.2** 修正。请勿安装或使用 0.3.1。
-
 ![首屏截图](docs/screenshot.png)
 
 ---
 
+## 目录
+
+- [为什么用它](#为什么用它)
+- [安装](#安装)
+- [快速开始](#快速开始)
+- [20 个计算器（全部实现）](#20-个计算器全部实现)
+- [新标准对齐：TB/T 2809-2026](#新标准对齐-2809-2026)
+- [单位约定](#单位约定)
+- [每个模块都带 meta](#每个模块都带-meta)
+- [与站点实现的同步政策](#与站点实现的同步政策)
+- [免责声明](#免责声明)
+- [新增一个计算器](#新增一个计算器)
+- [相关项目](#相关项目)
+
 ## 为什么用它
 
 - **公式公开可查** — 每个模块的 `meta.ts` 里写明公式、参考依据与适用范围，不是黑盒
-- **有单元测试** — 计算结果的期望值直接取自站点已发布的输出表，可复现、可校验
+- **有单元测试** — 计算结果的期望值直接取自站点已发布的输出表，可复现、可校验（228 项全绿）
 - **零运行时依赖** — 全部是纯函数，浏览器和 Node 通用，不会给你的项目塞进一堆传递依赖
 - **单位写在变量名里** — `tensionKN`、`spanM`、`crossSectionMM2`，杜绝工程计算里最常见的单位错误
+- **对新版标准友好** — 已按 **TB/T 2809-2026**（2026-09-01 实施）刷新线材参数、载流量与电阻温度系数口径，新旧对照可查
 
 ## 安装
 
@@ -35,9 +49,7 @@
 npm install ocs-calculators
 ```
 
-要求 Node ≥ 18。
-
-> ⚠️ **请使用 ≥ 0.2.1**。`0.2.0` 曾因子路径 exports 键写错（缺少 `./` 前缀）导致子路径导入抛 `ERR_PACKAGE_PATH_NOT_EXPORTED`，已由 `0.2.1` 修复。裸 `npm install ocs-calculators` 会取 latest（0.3.0），无需特殊处理；只有依赖显式锁了 `@0.2.0` 时才需要升级。完整版本历史见 [CHANGELOG.md](./CHANGELOG.md)。
+要求 Node ≥ 18。裸安装即取最新版（当前 `0.3.2`，已对齐 TB/T 2809-2026）。完整版本历史见 [CHANGELOG.md](./CHANGELOG.md)。
 
 ## 快速开始
 
@@ -49,7 +61,7 @@ const curve = tensionCurve(
   {
     baseTensionKN: 20,
     baseTempDegC: -20,
-    weightPerLengthNPerM: 10.56,
+    weightPerLengthNPerM: 10.56,   // CTMH-120 自重，TB/T 2809-2026 表3 参考单位质量 1076 kg/km → 1.076 × 9.81
     spanM: 55,
     elasticModulusGPa: 120,
     crossSectionMM2: 120,
@@ -61,13 +73,13 @@ const curve = tensionCurve(
 for (const p of curve) {
   console.log(`${p.targetTempDegC}℃  T=${p.tensionKN.toFixed(2)} kN  f=${p.sagM.toFixed(3)} m`);
 }
-// -20℃  T=20.00 kN  f=0.201 m
-// -10℃  T=17.69 kN  f=0.227 m
-//   0℃  T=15.45 kN  f=0.260 m
-//  10℃  T=13.30 kN  f=0.302 m
-//  20℃  T=11.30 kN  f=0.355 m
-//  30℃  T= 9.51 kN  f=0.422 m
-//  40℃  T= 8.00 kN  f=0.502 m
+// -20℃  T=20.00 kN  f=0.200 m
+// -10℃  T=17.69 kN  f=0.226 m
+//   0℃  T=15.45 kN  f=0.259 m
+//  10℃  T=13.30 kN  f=0.300 m
+//  20℃  T=11.29 kN  f=0.354 m
+//  30℃  T= 9.50 kN  f=0.420 m
+//  40℃  T= 7.98 kN  f=0.500 m
 ```
 
 上面这段输出与 <https://www.itswe.com/calculator/tension/> 在线计算器完全一致，测试用例里做了逐行回归。
@@ -117,6 +129,17 @@ import { cantileverCut } from 'ocs-calculators/cantilever';
 原 12 个模块的公式与默认参数取自站点 `/calculator/assets/calc-core.js` 源码；
 新增的 8 个模块（sag/bvalue/creepage/anchor-length/steady-arm/cross-span/pole-capacity/cantilever）为站点**内联引擎计算器**（引擎直嵌页面 HTML，不经 calc-core），本仓库按其 online 页面公式提炼，单元测试期望值由公式独立算出，未从服务器渲染结果反推。
 
+## 新标准对齐：TB/T 2809-2026
+
+本库已按 **TB/T 2809-2026《电气化铁路接触网 铜合金接触线》**（2026-09-01 实施）刷新数据与计算口径，与站点 [itswe.com](https://www.itswe.com) 全量一致：
+
+- **接触线单位重量**：按 2026 表3 参考单位质量取 `CTMH-120/150 = 1076/1342 kg/km`、`CTAH-120 = 1076 kg/km`（自重 `g ≈ 10.56 N/m`）
+- **室内载流量双口径**：`TB2809_WIRE_PARAMS` 主值切 2026 表5（如 CTMH-120 150℃ 室内 `442 A`），并保留 `ampacityIndoor150A2017` 同点位对照字段，便于既有线历史采购参照
+- **电阻温度系数 per-alloy 实装**：CTMH `0.00270` / CTAH `0.00380` / CTS `0.00320`（按材质真值 α，取代纯铜近似）
+- **r₂₀ 错档更正**：CTMH-120 `0.2211`、CTMH-150 `0.1769`、CTS-120 `0.1545`、CTS-150 `0.1236`（各材质 20℃ 电阻率上限 ÷ 标称截面）
+
+线材参数取值均可在 `src/data/wire-specs.ts`、`src/data/tb2809-ampacity.ts` 中逐项核对，标准号与年份随每次修订同步更新。
+
 ## 单位约定
 
 | 量的后缀 | 单位 | 例 |
@@ -153,11 +176,9 @@ console.log(tensionMeta.disclaimer);  // 免责声明
 - `meta.ts` 中的参考依据（标准号 + 年份）随两侧更新同步修订；
 - 库侧输入域守卫与站点页面的有效输入域（`data-min`/`data-max`）对齐：越界输入在库内抛 `RangeError`（站点页面另受表单控件约束，不影响在线使用）。
 
-当前同步状态：2026-09-19 全量对齐站点（含载流量双口径；228 项测试全绿）——
-`copper` 载流量室内主值已切 TB/T 2809-2026 表5，`ampacityIndoor150A2017`
-保留 2017 表5 同点位对照，单位重量列亦两侧一致。
+当前同步状态：**2026-09-20 全量对齐站点**（含 TB/T 2809-2026 载流量双口径；228 项测试全绿）——`copper` 载流量室内主值已切 2026 表5，`ampacityIndoor150A2017` 保留 2017 表5 同点位对照，单位重量列亦两侧一致。
 
-## ⚠️ 免责声明
+## 免责声明
 
 **本库所有计算结果仅供参考，不构成工程设计、施工或验收依据。**
 
@@ -166,22 +187,6 @@ console.log(tensionMeta.disclaimer);  // 免责声明
 - 公式形式以设计文件及接触网设计教材/手册为准
 
 详见 [DISCLAIMER.md](./DISCLAIMER.md)。
-
-## 自重口径（已确认）
-
-线密度取标准「参考单位质量」表值，与 TB/T 2809-2026 表3（=2017 派生同值）一致：
-CTMH-120/150 = **1076 / 1342**、CTAH-120（铜银）= **1076** kg/km
-（换算线密度 `1.076 / 1.342 / 1.076 kg/m`，CTMH-120 自重 `g = 1.076 × 9.81 ≈ 10.56 N/m`）。
-
-与站点 `/calculator/tension/` 预设 `rho`、表单默认值 `10.56`、
-以及本库 `TB2809_WIRE_PARAMS.unitWeightKgPerKm`、`STANDARD_UNIT_WEIGHT_KG_PER_KM` 四处同源。
-
-早期版本曾混入 TB/T 2810-2017（纯铜）参考表的 `1082 / 1350 / 1070` 及按 8.94 g/cm³
-推算的旧口径，与 2809 表3 实值不符，已于 2026-09-20 更正对齐。
-
-顺带说明为什么仅靠回归表约不动 g：g 在状态方程里以 `g²l²EA/24` 项出现，
-量级只有 0.006 kN，而 `αEA·Δt` 项有 15 kN。g 偏差 1% 只让张力变化约 0.001%，
-弛度则随 g 线性变化。所以张力逐位一致对 g 的约束极弱，必须回到标准表确认口径。
 
 ## 新增一个计算器
 
@@ -204,8 +209,8 @@ src/<模块名>/
 
 ## 相关项目
 
-- ocs-wiki-content — 词条快照与结构化数据（规划中，仓库未建，建仓后再挂链接）
 - [itswe](https://github.com/showhoo/itswe) — 站点介绍与建站文档
+- ocs-wiki-content — 词条快照与结构化数据（规划中，建仓后再挂链接）
 
 ## 赞助
 

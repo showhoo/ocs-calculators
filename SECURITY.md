@@ -28,7 +28,7 @@
 
 1. 涉及模块与函数名（如 `wearRatio`）；
 2. 你使用的输入值与得到的结果；
-3. 期望值及其依据（标准号 + 年份 + 条款/表号，如 TB/T 2809-2017 表5）；
+3. 期望值及其依据（标准号 + 年份 + 条款/表号，如 TB/T 2809-2026 表5）；
 4. 若涉及单位换算，请注明你采用的单位制。
 
 也可使用 [Calculation Issue 模板](https://github.com/showhoo/ocs-calculators/issues/new?template=calculation-issue.yml)公开提交非敏感的公式问题。

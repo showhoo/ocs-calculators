@@ -1,8 +1,10 @@
-# OCS Calculators
+# OCS Calculators — Railway Overhead Contact System Engineering Calculators
 
-**Engineering calculators for railway overhead contact systems (catenary) — open formulas, zero dependencies, embeddable in your own projects.**
+**Engineering calculators for railway overhead contact systems (catenary) — 20 calculators with open formulas, zero dependencies and pure TypeScript functions you can drop straight into your own project. Aligned with TB/T 2809-2026, the new Chinese contact-wire standard.**
 
-**20 modules · 222 unit tests · zero dependencies · pure TypeScript** (Node ≥ 18)
+Covers the high-frequency calculations of catenary design, construction and maintenance: tension–temperature installation curves, dropper length, sag, wind deflection clearance, ampacity and short-circuit thermal stability, contact-wire wear, anchor-section tension difference, and more.
+
+**20 modules · 228 unit tests · zero runtime dependencies · pure TypeScript** (Node ≥ 18)
 
 🔗 Try online: <https://www.itswe.com/Category:tools>
 📖 Companion wiki: <https://www.itswe.com> (670+ pages of catenary engineering content, in Chinese)
@@ -27,10 +29,14 @@ This library is that missing piece:
 - **Formulas are public.** Every module ships a `meta.ts` with the equations,
   the standards they relate to, and their validity range. No black boxes.
 - **Tested against a live reference.** Expected values come from the published
-  output of the online calculators, and are regression-tested row by row.
+  output of the online calculators, and are regression-tested row by row
+  (228 tests, all green).
 - **Zero runtime dependencies.** Pure functions, works in the browser and Node.
 - **Units live in the variable names.** `tensionKN`, `spanM`, `crossSectionMM2` —
   unit confusion is the number one bug in engineering code.
+- **Current-standard friendly.** Wire parameters, ampacity and resistance
+  temperature coefficients are refreshed to **TB/T 2809-2026** (effective
+  2026-09-01), with the 2017 values kept alongside where useful.
 
 ## Install
 
@@ -38,13 +44,9 @@ This library is that missing piece:
 npm install ocs-calculators
 ```
 
-Requires Node ≥ 18.
-
-> ⚠️ **Use ≥ 0.2.1.** In `0.2.0` the sub-path `exports` keys were missing the
-> `./` prefix, so sub-path imports threw `ERR_PACKAGE_PATH_NOT_EXPORTED`.
-> Fixed in `0.2.1`. A bare `npm install ocs-calculators` resolves to the
-> latest version (0.3.0); only pins on `@0.2.0` need upgrading. Full history
-> in [CHANGELOG.md](./CHANGELOG.md).
+Requires Node ≥ 18. A bare install resolves to the latest version (currently
+`0.3.2`, aligned with TB/T 2809-2026). Full version history in
+[CHANGELOG.md](./CHANGELOG.md).
 
 ## Usage
 
@@ -57,7 +59,7 @@ const curve = tensionCurve(
   {
     baseTensionKN: 20,
     baseTempDegC: -20,
-    weightPerLengthNPerM: 10.61442,
+    weightPerLengthNPerM: 10.56,  // CTMH-120 self-weight: 1076 kg/km → 1.076 × 9.81
     spanM: 55,
     elasticModulusGPa: 120,
     crossSectionMM2: 120,
@@ -69,13 +71,13 @@ const curve = tensionCurve(
 for (const p of curve) {
   console.log(`${p.targetTempDegC}°C  T=${p.tensionKN.toFixed(2)} kN  f=${p.sagM.toFixed(3)} m`);
 }
-// -20°C  T=20.00 kN  f=0.201 m
-// -10°C  T=17.69 kN  f=0.227 m
-//   0°C  T=15.45 kN  f=0.260 m
-//  10°C  T=13.30 kN  f=0.302 m
-//  20°C  T=11.30 kN  f=0.355 m
-//  30°C  T= 9.51 kN  f=0.422 m
-//  40°C  T= 8.00 kN  f=0.502 m
+// -20°C  T=20.00 kN  f=0.200 m
+// -10°C  T=17.69 kN  f=0.226 m
+//   0°C  T=15.45 kN  f=0.259 m
+//  10°C  T=13.30 kN  f=0.300 m
+//  20°C  T=11.29 kN  f=0.354 m
+//  30°C  T= 9.50 kN  f=0.420 m
+//  40°C  T= 7.98 kN  f=0.500 m
 ```
 
 This matches <https://www.itswe.com/calculator/tension/> exactly, row by row.
@@ -132,6 +134,28 @@ repository distills them from the published page formulas, and the test
 expectations are computed independently from the formulas — not reverse-
 engineered from server-rendered output.
 
+## Current-standard alignment: TB/T 2809-2026
+
+Data and calculation conventions are refreshed to **TB/T 2809-2026
+《电气化铁路接触网 铜合金接触线》** (effective 2026-09-01), fully matching the
+online calculators at [itswe.com](https://www.itswe.com):
+
+- **Contact-wire unit weight** — taken from the standard's reference unit-mass
+  table: `CTMH-120/150 = 1076/1342 kg/km`, `CTAH-120 = 1076 kg/km`
+  (self-weight `g ≈ 10.56 N/m`).
+- **Indoor ampacity, dual caliber** — `TB2809_WIRE_PARAMS` main values use the
+  2026 table 5 (e.g. CTMH-120 150 °C indoor `442 A`), with an
+  `ampacityIndoor150A2017` field keeping the 2017 table 5 counterparts for
+  reference on legacy lines.
+- **Per-alloy resistance temperature coefficient** — CTMH `0.00270` /
+  CTAH `0.00380` / CTS `0.00320`, replacing the pure-copper approximation.
+- **Corrected r₂₀** — CTMH-120 `0.2211`, CTMH-150 `0.1769`, CTS-120 `0.1545`,
+  CTS-150 `0.1236` (20 °C resistivity upper limit ÷ nominal cross-section).
+
+Every wire parameter can be cross-checked in `src/data/wire-specs.ts` and
+`src/data/tb2809-ampacity.ts`; standard numbers and years are revised on both
+sides whenever a value changes.
+
 ## Unit conventions
 
 | Suffix | Unit | Example |
@@ -176,29 +200,13 @@ This repository is the formula/algorithm layer of the online calculators at
   (`data-min` / `data-max`): out-of-range input throws a `RangeError` (the
   online pages are additionally constrained by their form controls).
 
-Current sync status: fully aligned with the site as of 2026-09-19
-(including dual-caliber ampacity fields; 228 tests green) — the `copper`
-indoor ampacity main values follow TB/T 2809-2026 table 5, with
+Current sync status: **fully aligned with the site as of 2026-09-20**
+(including the TB/T 2809-2026 dual-caliber ampacity fields; 228 tests green) —
+the `copper` indoor ampacity main values follow 2026 table 5, with
 `ampacityIndoor150A2017` keeping the 2017 table 5 counterparts, and the
 unit-weight column matches on both sides.
 
-## Wire self-weight convention (confirmed)
-
-Linear density is taken from the standards' "reference unit mass" table, not
-derived from the nominal cross-section. For CTMH-120 the standard lists
-`nominal 120 mm² | calculated 121 mm² | reference unit mass 1082 kg/km`, with
-a note that the mass is computed at 8.94 g/cm³ — a density that pairs with the
-**calculated** section (which includes dimensional tolerances), not the
-nominal one: `121 × 8.94 × 1e-3 ≈ 1.082 kg/m`. Hence the self-weight
-`g = 1.082 × 9.81 = 10.61442 N/m`, consistent across the site preset
-(`rho = 1.082`), the form default (`10.61`) and this library
-(`TB2809_WIRE_PARAMS`, `1082`).
-
-Basis: TB/T 2810-2017 (copper) and TB/T 2821-2017 (copper-silver) dimension
-tables. See the [Chinese README](./README.md) for the full investigation
-record.
-
-## ⚠️ Disclaimer
+## Disclaimer
 
 **Results are indicative only and are not a substitute for engineering design,
 construction or acceptance documentation.**
@@ -233,9 +241,9 @@ Full conventions and the sync policy: [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## Related projects
 
+- [itswe](https://github.com/showhoo/itswe) — site introduction and build notes
 - ocs-wiki-content — entry snapshots and structured data (planned; link will
   be added once the repository exists)
-- [itswe](https://github.com/showhoo/itswe) — site introduction and build notes
 
 ## Sponsors
 
