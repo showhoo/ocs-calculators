@@ -25,10 +25,10 @@ jobs:
           echo "=== 发现 GitHub 账号下所有仓库 ==="
           REPOS=$(curl -s -H "Authorization: Bearer $GH_PAT" \
             "https://api.github.com/user/repos?per_page=100&sort=full_name&type=owner" \
-            | jq -r '.[] | "\(.name)|\(.private)|\(.description // "")"')
+            | jq -r '.[] | "\(.name)|\(.private)|\(.default_branch // "main")|\(.description // "")"')
           echo "$REPOS"
 
-          while IFS='|' read -r name private desc; do
+          while IFS='|' read -r name private branch desc; do
             [ -z "$name" ] && continue
             echo ""
             echo "=== 同步 $name (private=$private) ==="
@@ -117,12 +117,13 @@ jobs:
                 RBODY=$(echo "$rel" | jq -r '.body // ""')
                 PRE=$(echo "$rel" | jq -r '.prerelease')
                 if [ "$plat" = "gitee" ]; then
-                  # Gitee 发行版接口只认表单体，JSON 体一律 400
+                  # Gitee 发行版接口强制要求 target_commitish（即使 tag 已存在）
                   RESP=$(curl -s -w "\n%{http_code}" -X POST -H "$AUTHH" \
                     --data-urlencode "tag_name=$RTAG" \
                     --data-urlencode "name=$RNAME" \
                     --data-urlencode "body=$RBODY" \
                     --data-urlencode "prerelease=$PRE" \
+                    --data-urlencode "target_commitish=$branch" \
                     "https://${plat}.com/api/v5/repos/${PUSER}/${name}/releases")
                 else
                   RJ=$(jq -n --arg tag "$RTAG" --arg nm "$RNAME" --arg bd "$RBODY" --argjson pre "$PRE" \
