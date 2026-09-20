@@ -58,19 +58,6 @@ jobs:
                 -d "{\"name\":\"${name}\",\"private\":$([[ $VIS == private ]] && echo true || echo false),\"description\":\"${desc}\"}"
             fi
 
-            # ---- 元数据刷新：简介每次运行对齐 GitHub（修补建仓后设置的描述）----
-            if [ -n "$desc" ]; then
-              GITEE_PATCH=$(curl -s -o /dev/null -w "%{http_code}" -X PATCH\
-                -H "Authorization: Bearer $GITEE_TOKEN"\
-                "https://gitee.com/api/v5/repos/${GITEE_USER}/${name}"\
-                --data-urlencode "description=${desc}" --data-urlencode "name=${name}")
-              GITCODE_PATCH=$(curl -s -o /dev/null -w "%{http_code}" -X PATCH\
-                -H "PRIVATE-TOKEN: $GITCODE_TOKEN" -H "Content-Type: application/json"\
-                "https://gitcode.com/api/v5/repos/${GITCODE_USER}/${name}"\
-                -d "{\"description\":\"${desc}\"}")
-              echo "  ↺ 简介刷新: gitee=$GITEE_PATCH gitcode=$GITCODE_PATCH"
-            fi
-
             # ---- 镜像推送（裸镜像：分支+标签全量）----
             git clone --mirror "https://x-access-token:${GH_PAT}@github.com/${GITHUB_REPOSITORY_OWNER}/${name}.git" "mirror_${name}.git"
             cd "mirror_${name}.git"
@@ -80,11 +67,66 @@ jobs:
             git push gitee --tags --force
             git push gitcode --all --force
             git push gitcode --tags --force
+
+            # ---- Tag 对账：删除远端有、GitHub 已没有的幽灵 tag ----
+            # （git push --tags 只推本地有的，从不删除远端多余 tag，被删版本的 tag 会永久残留）
+            for plat in gitee gitcode; do
+              git ls-remote --tags "$plat" 2>/dev/null | grep 'refs/tags/' | grep -v '\^{}' \
+                | awk -F'refs/tags/' '{print $2}' | while read -r rt; do
+                  [ -z "$rt" ] && continue
+                  if ! git rev-parse -q --verify "refs/tags/$rt" >/dev/null 2>&1; then
+                    echo "  [$plat] 删除幽灵 tag $rt"
+                    git push "$plat" ":refs/tags/$rt" >/dev/null 2>&1 || echo "  [$plat] 删除 $rt 失败（忽略）"
+                  fi
+                done
+            done
             cd ..
             rm -rf "mirror_${name}.git"
+
+            # ---- 元数据对齐：简介 + 公私有可见性（每天 PATCH，与 GitHub 对齐）----
+            # Gitee PATCH 的 name 必填；可见性一并同步，防止平台侧被改私有后失配
+            if [ -n "$desc" ]; then
+              META=$(jq -n --arg name "$name" --arg desc "$desc" --argjson priv "$private" \
+                '{name:$name, description:$desc, private:$priv}')
+              GC=$(curl -s -o /dev/null -w "%{http_code}" -X PATCH \
+                -H "Authorization: Bearer $GITEE_TOKEN" -H "Content-Type: application/json" \
+                -d "$META" "https://gitee.com/api/v5/repos/${GITEE_USER}/${name}")
+              KC=$(curl -s -o /dev/null -w "%{http_code}" -X PATCH \
+                -H "PRIVATE-TOKEN: $GITCODE_TOKEN" -H "Content-Type: application/json" \
+                -d "$META" "https://gitcode.com/api/v5/repos/${GITCODE_USER}/${name}")
+              echo "  ↺ 元数据对齐(简介+可见性): gitee=$GC gitcode=$KC"
+            fi
+
+            # ---- 发行版同步：GitHub Releases → 平台发行版（只补缺创建）----
+            GHREL=$(curl -s -H "Authorization: Bearer $GH_PAT" \
+              "https://api.github.com/repos/${GITHUB_REPOSITORY_OWNER}/${name}/releases?per_page=100")
+            for plat in gitee gitcode; do
+              if [ "$plat" = "gitee" ]; then
+                AUTHH="Authorization: Bearer $GITEE_TOKEN"; PUSER="$GITEE_USER"
+              else
+                AUTHH="PRIVATE-TOKEN: $GITCODE_TOKEN"; PUSER="$GITCODE_USER"
+              fi
+              EXISTING=$(curl -s -H "$AUTHH" \
+                "https://${plat}.com/api/v5/repos/${PUSER}/${name}/releases?per_page=100" \
+                | jq -r '.[].tag_name' 2>/dev/null || true)
+              echo "$GHREL" | jq -c '.[] | select(.draft == false)' 2>/dev/null | while read -r rel; do
+                [ -z "$rel" ] && continue
+                RTAG=$(echo "$rel" | jq -r '.tag_name')
+                echo "$EXISTING" | grep -qx "$RTAG" && continue
+                RNAME=$(echo "$rel" | jq -r '.name // .tag_name')
+                RBODY=$(echo "$rel" | jq -r '.body // ""')
+                PRE=$(echo "$rel" | jq -r '.prerelease')
+                RJ=$(jq -n --arg tag "$RTAG" --arg nm "$RNAME" --arg bd "$RBODY" --argjson pre "$PRE" \
+                  '{tag_name:$tag, name:$nm, body:$bd, prerelease:$pre}')
+                RC=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
+                  -H "$AUTHH" -H "Content-Type: application/json" \
+                  -d "$RJ" "https://${plat}.com/api/v5/repos/${PUSER}/${name}/releases")
+                echo "  [$plat] 发行版 $RTAG 创建: $RC"
+              done
+            done
+
             echo "  ✅ $name 同步完成"
           done <<< "$REPOS"
 
           echo ""
           echo "=== 全部仓库镜像完成 ==="
-
