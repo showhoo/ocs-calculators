@@ -22,6 +22,27 @@ jobs:
           GITCODE_USER: showhoo
         run: |
           set -e
+
+          # 平台偶发 SSL/连接抖动会杀死整轮对齐，网络操作统一带重试
+          clone_retry() {
+            local n=0 out repo="$1" dir="$2"
+            out=$(git clone --mirror "$repo" "$dir" 2>&1) && { echo "$out" | tail -1; return 0; }
+            while [ $n -lt 3 ]; do
+              n=$((n+1)); echo "  clone 重试($n)..."; rm -rf "$dir"; sleep 10
+              out=$(git clone --mirror "$repo" "$dir" 2>&1) && { echo "$out" | tail -1; return 0; }
+            done
+            echo "  clone 连续失败: $(echo "$out" | tail -1)"; return 1
+          }
+          push_retry() {
+            local n=0 out
+            out=$(git push "$@" 2>&1) && { echo "$out" | tail -1; return 0; }
+            while [ $n -lt 3 ]; do
+              n=$((n+1)); echo "  push 重试($n)..."; sleep 10
+              out=$(git push "$@" 2>&1) && { echo "$out" | tail -1; return 0; }
+            done
+            echo "  push 连续失败: $(echo "$out" | tail -1)"; return 1
+          }
+
           echo "=== 发现 GitHub 账号下所有仓库 ==="
           REPOS=$(curl -s -H "Authorization: Bearer $GH_PAT" \
             "https://api.github.com/user/repos?per_page=100&sort=full_name&type=owner" \
@@ -59,14 +80,14 @@ jobs:
             fi
 
             # ---- 镜像推送（裸镜像：分支+标签全量）----
-            git clone --mirror "https://x-access-token:${GH_PAT}@github.com/${GITHUB_REPOSITORY_OWNER}/${name}.git" "mirror_${name}.git"
+            clone_retry "https://x-access-token:${GH_PAT}@github.com/${GITHUB_REPOSITORY_OWNER}/${name}.git" "mirror_${name}.git"
             cd "mirror_${name}.git"
             git remote add gitee "https://${GITEE_USER}:${GITEE_TOKEN}@gitee.com/${GITEE_USER}/${name}.git" || true
             git remote add gitcode "https://${GITCODE_USER}:${GITCODE_TOKEN}@gitcode.com/${GITCODE_USER}/${name}.git" || true
-            git push gitee --all --force
-            git push gitee --tags --force
-            git push gitcode --all --force
-            git push gitcode --tags --force
+            push_retry gitee --all --force
+            push_retry gitee --tags --force
+            push_retry gitcode --all --force
+            push_retry gitcode --tags --force
 
             # ---- Tag 对账：删除远端有、GitHub 已没有的幽灵 tag ----
             # （git push --tags 只推本地有的，从不删除远端多余 tag，被删版本的 tag 会永久残留）
