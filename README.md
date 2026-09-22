@@ -11,8 +11,8 @@
 
 [English](./README_EN.md) | 简体中文
 
-![npm version](https://img.shields.io/npm/v/ocs-calculators)
-![npm downloads](https://img.shields.io/npm/dm/ocs-calculators)
+[![npm version](https://img.shields.io/npm/v/ocs-calculators)](https://www.npmjs.com/package/ocs-calculators)
+[![npm downloads](https://img.shields.io/npm/dm/ocs-calculators)](https://www.npmjs.com/package/ocs-calculators)
 [![CI](https://github.com/showhoo/ocs-calculators/actions/workflows/ci.yml/badge.svg)](https://github.com/showhoo/ocs-calculators/actions/workflows/ci.yml)
 ![license](https://img.shields.io/npm/l/ocs-calculators)
 ![dependencies](https://img.shields.io/badge/dependencies-0-brightgreen)
